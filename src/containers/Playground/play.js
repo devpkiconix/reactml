@@ -52,12 +52,10 @@ class Example extends React.Component {
     }
 
     render() {
-        const { showCode } = this.state;
         const { spec } = this.props;
         if (!spec) {
             return <div> Loading.. </div>;
         }
-        const toggleCode = () => this.setState({ showCode: !showCode });
         return (<div>
             <Paper style={{ backgroundColor: 'lightGray' }}>
                 <ReactML
@@ -73,16 +71,6 @@ class Example extends React.Component {
                     actionLib={actionLib}
                 />
             </Paper>
-            {/*
-            <Paper style={{ margin: '20px 0', padding: '10px' }}>
-                <button onClick={toggleCode}>show/hide spec</button>
-                {showCode ?
-                    <pre>{actionLib.toYaml(spec)}</pre>
-                    :
-                    ''
-                }
-            </Paper>
-            */}
         </div>);
     }
 }

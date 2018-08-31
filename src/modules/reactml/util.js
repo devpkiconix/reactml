@@ -7,11 +7,12 @@ export const fromYaml = (x) => yamlLib.safeLoad(x);
 export const dispatchFieldUpdate = (dispatch, name, value) =>
     dispatch({ type: 'REACTML_UPDATE', name, value, });
 
-export const reactmlFieldChangeHandler = (name) => (event) => (dispatch) =>
+export const reactmlFieldChangeHandler = (name) => (event) => (dispatch) => {
     dispatchFieldUpdate(dispatch, name, event.target.value);
-
-export const reactmlFieldChangeValueHandler = (name) => (value) => (dispatch) =>
+}
+export const reactmlFieldChangeValueHandler = (name) => (value) => (dispatch) => {
     dispatchFieldUpdate(dispatch, name, value);
+}
 
 export const setField = (dottedName, value, state) =>
     state.setIn(dottedName.split('.'), value);

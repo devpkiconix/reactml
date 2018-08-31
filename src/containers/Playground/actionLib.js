@@ -1,6 +1,7 @@
 import yamlLib from 'js-yaml';
 import {
-    reactmlFieldChangeHandler, reactmlSpecChangeValueHandler
+    reactmlFieldChangeHandler, reactmlSpecChangeValueHandler,
+    reactmlFieldChangeValueHandler, dispatchApplyYaml,
 } from '../../modules/reactml/util';
 
 const onEmailChange = reactmlFieldChangeHandler('user.email');
@@ -35,7 +36,11 @@ const fromYaml = (x) => yamlLib.safeLoad(x);
 
 const onChangeYaml = reactmlFieldChangeHandler('specText');
 
+const applyYaml = (event) => (dispatch) => {
+    dispatch({ type: 'REACTML_APPLY_YML', specTextName: 'specText', specName: 'spec' });
+};
+
 export default {
     onFirstNameChange, onEmailChange, save, toYaml, fromYaml,
-    onChangeYaml,
+    onChangeYaml, applyYaml,
 };

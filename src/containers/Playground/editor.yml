@@ -9,8 +9,6 @@ components:
       yamlError: specError
     styles:
       root: { }
-      ace:
-        margin: 10px
       email: { }
       error:
         color: red
@@ -89,9 +87,15 @@ components:
                       children:
                       - tag: div
                         content: 'Editor code:'
-                      - tag: AceEditor
+                      - tag: TextField
                         props:
-                          className: .classes.ace
+                          multiline: true
+                          rows: 20
+                          inputProps:
+                            style:
+                              fontFamily: Menlo
+                              fontSize: 10pt
+                            cols: 80
                           mode: yaml
                           value: .yaml
                           onChange: ..onChangeYaml
