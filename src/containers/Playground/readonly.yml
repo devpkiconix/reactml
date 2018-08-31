@@ -1,0 +1,26 @@
+state-spec:
+  x: number
+
+components:
+  ReadOnly:
+    code: home
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+    view:
+      tag: div
+      children:
+        - tag: h4
+          content: ReactML - ReadOnly view (readonly.yml)
+        - tag: div
+          children:
+          - tag: span
+            content: 'Name: '
+          - tag: span
+            content: .firstName
+        - tag: div
+          children:
+          - tag: span
+            content: 'E-mail: '
+          - tag: span
+            content: .email
