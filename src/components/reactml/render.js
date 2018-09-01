@@ -1,11 +1,14 @@
 import React from 'react';
 import {
-    __, curry, path as pathGet, keys, omit, map as RMap
+    __, curry, path as pathGet, keys, omit, map as RMap, pipe, pick,
 } from 'ramda';
 import { isString } from 'ramda-adjunct';
+
+import { fromYaml } from '../../modules/reactml/util';
+
 const sansProps = omit(['props', 'tag', 'content']);
 
-const _mapPropName2Value = (rootProps, dottedName) => {
+const mapPropName2Value = curry((rootProps, dottedName) => {
     // Double dot is a function
     if (isString(dottedName) && dottedName.startsWith('..')) {
         let fn = rootProps[dottedName.substr(2)];
@@ -17,12 +20,12 @@ const _mapPropName2Value = (rootProps, dottedName) => {
         return pathGet(dottedName.substr(1).split('.'), rootProps);
     }
     return dottedName;
-};
-const mapPropName2Value = curry(_mapPropName2Value);
+});
 
 // Given a reactml node, determine the react
 // class/function (i.e. JSX tag)
-const _mapNode2Tag = (tagFactory, node) => {
+const mapNode2Tag = curry((tagFactory, node) => {
+    console.log("node", node)
     if (isString(node)) {
         return node;
     }
@@ -30,42 +33,43 @@ const _mapNode2Tag = (tagFactory, node) => {
         throw new Error("Invalid configuration. Specify a tag name")
     }
     return tagFactory[node.tag] || node.tag;
-};
-const mapNode2Tag = curry(_mapNode2Tag);
+});
 
-const getChildNodes = (parentNode) => {
-    let childNodes = parentNode.children;
+const maybeParse = (data) => (isString(data)) ? fromYaml(data) : data;
+
+const normalizeTree = (node) => {
+    let childNodes = node.children;
     if (!childNodes) {
         childNodes = [];
-        if (keys(sansProps(parentNode)).length == 1) {
-            let tag = keys(sansProps(parentNode))[0];
-            let childNode = sansProps(parentNode)[tag]
-            childNodes = [{
-                tag,
-                ...childNode,
-            }];
+        if (keys(sansProps(node)).length == 1) {
+            let tag = keys(sansProps(node))[0];
+            let childNode = sansProps(node)[tag]
+            node = omit([tag], node);
+            childNodes = [{ tag, ...childNode, }];
         }
     }
-    return childNodes;
-}
+    return { ...node, children: childNodes.map(normalizeTree) };
+};
 
-const renderRoot = (propGetter, tagGetter) => {
-    const renderer = (node, key) => {
-        if (isString(node)) {
-            return node;
-        }
-        const
-            mappedProps = RMap(propGetter, node.props || {}),
-            tag = tagGetter(node),
-            props = { key, ...mappedProps || {} },
-            elemChildren = node.content ?
-                [propGetter(node.content)]
-                :
-                getChildNodes(node).map(renderer);
-
-        return React.createElement(tag, props, elemChildren);
+const _mapPropsTree = (propGetter, node) => {
+    const mappedProps = RMap(propGetter, node.props || {})
+    return {
+        ...node,
+        props: mappedProps,
+        children: node.children.map(child => _mapPropsTree(propGetter, child))
     };
-    return renderer;
+};
+const mapPropsTree = curry(_mapPropsTree);
+
+const ReactMLNode = ({ tagGetter, node }) => {
+    const
+        tag = tagGetter(node),
+        children = node.content ? [node.content] :
+            node.children.map((childNode, childKey) =>
+                isString(childNode) ? childNode :
+                    <ReactMLNode key={childKey} node={childNode}
+                        tagGetter={tagGetter} />);
+    return React.createElement(tag, node.props, children);
 };
 
 const render = (_deps) => (rootProps) => {
@@ -73,8 +77,18 @@ const render = (_deps) => (rootProps) => {
         { tagFactory, root } = rootProps,
         propGetter = mapPropName2Value(rootProps),
         tagGetter = mapNode2Tag(tagFactory),
-        renderNode = renderRoot(propGetter, tagGetter);
-    return renderNode(root, 0);
-};
+        propMapper = mapPropsTree(propGetter),
+        convertToReact = (node) =>
+            <ReactMLNode tagGetter={tagGetter} node={node} />,
+
+        pipeline = pipe(
+            maybeParse,
+            normalizeTree,
+            propMapper,
+            convertToReact
+        );
+
+    return pipeline(root)
+}
 
 export default { render };
