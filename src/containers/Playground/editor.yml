@@ -99,8 +99,8 @@ components:
                           mode: yaml
                           value: .yaml
                           onChange: ..onChangeYaml
-                          editorProps:
-                            $blockScrolling: true
+                          # editorProps:
+                          #   $blockScrolling: true
                 - tag: Grid
                   props:
                     item: true

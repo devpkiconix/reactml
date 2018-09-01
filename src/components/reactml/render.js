@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-    __, path as pathGet, keys, omit, map as RMap
+    __, curry, path as pathGet, keys, omit, map as RMap
 } from 'ramda';
 import { isString } from 'ramda-adjunct';
 const sansProps = omit(['props', 'tag', 'content']);
 
-const mapPropName2Value = rootProps => dottedName => {
+const _mapPropName2Value = (rootProps, dottedName) => {
     // Double dot is a function
     if (isString(dottedName) && dottedName.startsWith('..')) {
         let fn = rootProps[dottedName.substr(2)];
@@ -18,23 +18,22 @@ const mapPropName2Value = rootProps => dottedName => {
     }
     return dottedName;
 };
+const mapPropName2Value = curry(_mapPropName2Value);
 
 // Given a reactml node, determine the react
 // class/function (i.e. JSX tag)
-const mapNode2Tag = tagFactory => node => {
-    let tag;
+const _mapNode2Tag = (tagFactory, node) => {
     if (isString(node)) {
-        tag = node;
-    } else {
-        if (!node.tag) {
-            throw new Error("Invalid configuration. Specify a tag name")
-        }
-        tag = tagFactory[node.tag] || node.tag;
+        return node;
     }
-    return tag;
-}
+    if (!node.tag) {
+        throw new Error("Invalid configuration. Specify a tag name")
+    }
+    return tagFactory[node.tag] || node.tag;
+};
+const mapNode2Tag = curry(_mapNode2Tag);
 
-const renderChildren = (nodeRenderer) => (parentNode) => {
+const getChildNodes = (parentNode) => {
     let childNodes = parentNode.children;
     if (!childNodes) {
         childNodes = [];
@@ -47,40 +46,35 @@ const renderChildren = (nodeRenderer) => (parentNode) => {
             }];
         }
     }
-    return childNodes.map(nodeRenderer);
-};
+    return childNodes;
+}
 
-const renderNode = (rootProps, tagFactory, nodeRenderer = null) => {
-    const dottedName2Value = mapPropName2Value(rootProps);
-    const node2tag = mapNode2Tag(tagFactory);
+const renderRoot = (propGetter, tagGetter) => {
+    const renderer = (node, key) => {
+        if (isString(node)) {
+            return node;
+        }
+        const
+            mappedProps = RMap(propGetter, node.props || {}),
+            tag = tagGetter(node),
+            props = { key, ...mappedProps || {} },
+            elemChildren = node.content ?
+                [propGetter(node.content)]
+                :
+                getChildNodes(node).map(renderer);
 
-    // HACK - revisit nad cleanup
-    if (!nodeRenderer) {
-        nodeRenderer = (node, key) => {
-            if (typeof node === 'string') {
-                return node;
-            }
-            const nProps = RMap(dottedName2Value, node.props || {});
-            let elemChildren = null;
-            if (node.content) {
-                elemChildren = [dottedName2Value(node.content)];
-            } else {
-                const childRenderer = renderChildren(nodeRenderer);
-                elemChildren = childRenderer(node);
-            }
-            return React.createElement(
-                node2tag(node),
-                { key, ...nProps || {} },
-                elemChildren);
-        };
-    }
-    return nodeRenderer;
+        return React.createElement(tag, props, elemChildren);
+    };
+    return renderer;
 };
 
 const render = (_deps) => (rootProps) => {
-    const { tagFactory, root } = rootProps;
-    const nodeRenderer = renderNode(rootProps, tagFactory);
-    return nodeRenderer(root);
+    const
+        { tagFactory, root } = rootProps,
+        propGetter = mapPropName2Value(rootProps),
+        tagGetter = mapNode2Tag(tagFactory),
+        renderNode = renderRoot(propGetter, tagGetter);
+    return renderNode(root, 0);
 };
 
 export default { render };
