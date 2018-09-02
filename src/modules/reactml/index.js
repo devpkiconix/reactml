@@ -1,18 +1,18 @@
 import { fromJS } from 'immutable';
 import { fromYaml, setField } from './util';
-const initialState = fromJS({});
+
+const initialState = fromJS({ reactml: {} });
 
 export default (state = initialState, action = {}) => {
     switch (action.type) {
         case 'REACTML_INIT':
-            return fromJS(action.initial);
+            return state.set(action.stateNodeName, fromJS(action.initial));
         case 'REACTML_UPDATE':
-            return setField(action.name, action.value, state);
+            return setField(action.name, action.stateNodeName, action.value, state);
         case 'REACTML_APPLY_YML':
             return applyYml(state, action.specTextName, action.specName);
         default:
             break;
-
     }
     return state;
 };
@@ -23,7 +23,7 @@ const applyYml = (state, textName, specName) => {
         const spec = fromYaml(value);
         const isValid = validateSpec(spec);
         if (isValid) {
-            return state.setIn(['spec'], fromJS(spec))
+            return state.setIn(specName.split('.'), fromJS(spec))
                 .setIn('specError', null);
         }
     } catch (err) {

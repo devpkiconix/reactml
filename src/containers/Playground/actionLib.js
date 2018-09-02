@@ -1,28 +1,32 @@
 import yamlLib from 'js-yaml';
+import { curry } from 'ramda';
 import {
     reactmlFieldChangeHandler, reactmlSpecChangeValueHandler,
     reactmlFieldChangeValueHandler, dispatchApplyYaml,
 } from '../../modules/reactml/util';
 
-const onEmailChange = reactmlFieldChangeHandler('user.email');
+const onEmailChange = reactmlFieldChangeHandler('playground.user.email');
 
-const onFirstNameChange = reactmlFieldChangeHandler('user.firstName');
+const onFirstNameChange = reactmlFieldChangeHandler('playground.user.firstName');
 
 const save = (event) => (dispatch) => {
     dispatch({
         type: 'REACTML_UPDATE',
+        stateNodeName: 'playground',
         name: 'status.save',
         value: '(fake) saving..',
     });
     setTimeout(() => {
         dispatch({
             type: 'REACTML_UPDATE',
+            stateNodeName: 'playground',
             name: 'status.save',
             value: '(fake) save successful',
         });
         setTimeout(() => {
             dispatch({
                 type: 'REACTML_UPDATE',
+                stateNodeName: 'playground',
                 name: 'status.save',
                 value: null,
             });
@@ -34,7 +38,7 @@ const save = (event) => (dispatch) => {
 const toYaml = (x) => yamlLib.safeDump(x, { indent: 2 });
 const fromYaml = (x) => yamlLib.safeLoad(x);
 
-const onChangeYaml = reactmlFieldChangeHandler('specText');
+const onChangeYaml = reactmlFieldChangeHandler('playground.specText');
 
 const applyYaml = (event) => (dispatch) => {
     dispatch({ type: 'REACTML_APPLY_YML', specTextName: 'specText', specName: 'spec' });

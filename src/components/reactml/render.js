@@ -25,7 +25,7 @@ const mapPropName2Value = curry((rootProps, dottedName) => {
 // Given a reactml node, determine the react
 // class/function (i.e. JSX tag)
 const mapNode2Tag = curry((tagFactory, node) => {
-    console.log("node", node)
+    // console.log("node", node)
     if (isString(node)) {
         return node;
     }
@@ -36,6 +36,17 @@ const mapNode2Tag = curry((tagFactory, node) => {
 });
 
 const maybeParse = (data) => (isString(data)) ? fromYaml(data) : data;
+
+const isLeaf = (node) => {
+    switch (node.tag) {
+        case 'input':
+        case 'textarea':
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
 
 const normalizeTree = (node) => {
     let childNodes = node.children;
@@ -48,7 +59,8 @@ const normalizeTree = (node) => {
             childNodes = [{ tag, ...childNode, }];
         }
     }
-    return { ...node, children: childNodes.map(normalizeTree) };
+    let children = childNodes.map(normalizeTree);
+    return { ...node, children };
 };
 
 const _mapPropsTree = (propGetter, node) => {
@@ -56,6 +68,7 @@ const _mapPropsTree = (propGetter, node) => {
     return {
         ...node,
         props: mappedProps,
+        content: node.content ? propGetter(node.content) : null,
         children: node.children.map(child => _mapPropsTree(propGetter, child))
     };
 };
@@ -69,12 +82,12 @@ const ReactMLNode = ({ tagGetter, node }) => {
                 isString(childNode) ? childNode :
                     <ReactMLNode key={childKey} node={childNode}
                         tagGetter={tagGetter} />);
-    return React.createElement(tag, node.props, children);
+    return React.createElement(tag, node.props, children.length ? children : null);
 };
 
 const render = (_deps) => (rootProps) => {
     const
-        { tagFactory, root } = rootProps,
+        { tagFactory, root, stateNodeName } = rootProps,
         propGetter = mapPropName2Value(rootProps),
         tagGetter = mapNode2Tag(tagFactory),
         propMapper = mapPropsTree(propGetter),

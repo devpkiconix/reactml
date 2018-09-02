@@ -21,12 +21,13 @@ const state2PropsMaker = (pageName, props) => {
     );
     return (state) => {
         const imPathGet =
-            (dotted) => state.reactml.getIn(dotted.split('.'));
+            (dotted) => state.reactml.getIn([props.stateNodeName].concat(dotted.split('.')));
         return mapValues(oState2pathSpec, imPathGet);
     };
 };
 
 export const ReactML = (props) => {
+    const stateNodeName = props.stateNodeName;
     const pageName = props.page;
     const stylesPath = ['spec', 'components', pageName, 'styles'];
     const viewNodePath = ['spec', 'components', pageName, 'view']
@@ -36,6 +37,7 @@ export const ReactML = (props) => {
         tagFactory: props.tagFactory || defaultTagFactory,
         root: pathGet(viewNodePath, props),
         ...mapStateToProps2,
+        stateNodeName,
     };
     return React.createElement(
         connect(mapStateToProps2, actionExtractor())(
