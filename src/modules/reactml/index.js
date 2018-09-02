@@ -1,7 +1,7 @@
 import { fromJS } from 'immutable';
 import { fromYaml, setField } from './util';
 
-const initialState = fromJS({ reactml: {} });
+const initialState = fromJS({});
 
 export default (state = initialState, action = {}) => {
     switch (action.type) {

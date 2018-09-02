@@ -10,45 +10,29 @@ import 'brace/theme/solarized_dark';
 
 import Paper from '@material-ui/core/Paper';
 
-import editorSpec from './editor.yml'
-import viewSpec from './readonly.yml'
+import exampleSpec from './example.yml'
 
 import actionLib from './actionLib';
 import Status from './Status';
+import { toYaml } from '../../modules/reactml/util';
 
-const TagFactory1 = {
-    ...muiTagFactory, Status, AceEditor
-};
-
-const TagFactory2 = {};
-
-const initialState = {
-    spec: editorSpec, viewSpec,
-    specText: actionLib.toYaml(editorSpec),
-    user: {
-        name: 'foo',
-        email: 'mynameisfoo@example.com',
-        firstName: 'Foo',
-        lastName: 'Barz',
-        address: {
-            street: '1234 main street',
-            city: 'la la land',
-            zip: '00000',
-            state: 'restless',
-            country: 'somewhere',
-        },
+const
+    TagFactory1 = {
+        ...muiTagFactory, Status, AceEditor
     },
-    status: {
-        save: null,
-    }
-};
-
+    TagFactory2 = {};
 
 class Example extends React.Component {
     state = { showCode: false };
 
     componentDidMount() {
-        this.props.dispatch({ type: 'REACTML_INIT', initial: initialState })
+        this.props.dispatch({
+            type: 'REACTML_INIT', initial: {
+                ...this.props.spec.state.initial,
+                specText: toYaml(this.props.spec),
+            },
+            stateNodeName: 'playground',
+        })
     }
 
     render() {
@@ -60,14 +44,16 @@ class Example extends React.Component {
             <Paper style={{ backgroundColor: 'lightGray' }}>
                 <ReactML
                     tagFactory={TagFactory2}
-                    spec={viewSpec} page='ReadOnly'
+                    stateNodeName={this.props.stateNodeName}
+                    spec={spec} component='ReadOnly'
                     actionLib={actionLib}
                 />
             </Paper>
             <Paper>
                 <ReactML
                     tagFactory={TagFactory1}
-                    spec={spec} page='HomePage'
+                    stateNodeName={this.props.stateNodeName}
+                    spec={spec} component='HomePage'
                     actionLib={actionLib}
                 />
             </Paper>
@@ -76,12 +62,11 @@ class Example extends React.Component {
 }
 
 function mapStateToProps(state) {
-    // console.log(JSON.stringify(sta te,nu ll,2));
-    const spec = state.reactml.get('spec');
+    const spec = state.reactml.getIn(['playground', 'spec']);
     if (spec) {
         return { spec: spec.toJS() }
     }
-    return { spec: null };
+    return { spec: spec || exampleSpec };
 }
 
 export default connect(mapStateToProps)(Example);
