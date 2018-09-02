@@ -53,7 +53,7 @@ class Example extends React.Component {
                 <ReactML
                     tagFactory={TagFactory1}
                     stateNodeName={this.props.stateNodeName}
-                    spec={spec} component='HomePage'
+                    spec={spec} component='Editor'
                     actionLib={actionLib}
                 />
             </Paper>

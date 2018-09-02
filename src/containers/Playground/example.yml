@@ -37,7 +37,7 @@ components:
             content: 'E-mail: '
           - tag: span
             content: .email
-  HomePage:
+  Editor:
     state-to-props:
       email: user.email
       firstName: user.firstName
@@ -58,7 +58,7 @@ components:
       props:
       children:
         - tag: h4
-          content: ReactML component name - HomePage
+          content: ReactML component name - Editor
         - tag: Grid
           props:
             container: true
@@ -125,36 +125,12 @@ components:
                       children:
                       - tag: div
                         content: 'Editor code:'
-                      - tag: TextField
+                      - tag: pre
                         props:
-                          multiline: true
-                          rows: 20
-                          inputProps:
-                            style:
+                          style:
                               fontFamily: Menlo
                               fontSize: 10pt
-                            cols: 80
-                          mode: yaml
-                          value: .yaml
-                          onChange: ..onChangeYaml
-                          # editorProps:
-                          #   $blockScrolling: true
-                - tag: Grid
-                  props:
-                    item: true
-                    xs: 2
-                  button:
-                    content: Apply Changes
-                    props:
-                      onClick: ..applyYaml
+                        content: .yaml
 
-                - tag: Grid
-                  props:
-                    item: true
-                    xs: 2
-                  div:
-                    content: .yamlError
-                    props:
-                      className: .classes.error
 
 

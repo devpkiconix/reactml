@@ -41,7 +41,11 @@ const fromYaml = (x) => yamlLib.safeLoad(x);
 const onChangeYaml = reactmlFieldChangeHandler('playground.specText');
 
 const applyYaml = (event) => (dispatch) => {
-    dispatch({ type: 'REACTML_APPLY_YML', specTextName: 'specText', specName: 'spec' });
+    dispatch({
+        type: 'REACTML_APPLY_YML',
+        stateNodeName: 'playground',
+        specTextName: 'specText', specName: 'spec'
+    });
 };
 
 export default {

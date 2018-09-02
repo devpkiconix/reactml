@@ -10,20 +10,20 @@ export default (state = initialState, action = {}) => {
         case 'REACTML_UPDATE':
             return setField(action.name, action.stateNodeName, action.value, state);
         case 'REACTML_APPLY_YML':
-            return applyYml(state, action.specTextName, action.specName);
+            return applyYml(state, action.stateNodeName, action.specTextName, action.specName);
         default:
             break;
     }
     return state;
 };
 
-const applyYml = (state, textName, specName) => {
+const applyYml = (state, stateNodeName, textName, specName) => {
     try {
-        const value = state.getIn([textName]);
+        const value = state.getIn([stateNodeName, textName]);
         const spec = fromYaml(value);
         const isValid = validateSpec(spec);
         if (isValid) {
-            return state.setIn(specName.split('.'), fromJS(spec))
+            return state.setIn([stateNodeName].concat(specName.split('.'), fromJS(spec)))
                 .setIn('specError', null);
         }
     } catch (err) {
