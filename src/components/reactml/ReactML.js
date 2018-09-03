@@ -35,16 +35,16 @@ export const ReactML = (props) => {
     const compName = props.component;
     const stylesPath = ['spec', 'components', compName, 'styles'];
     const viewNodePath = ['spec', 'components', compName, 'view']
-    const mapStateToProps2 = state2PropsMaker(compName, props);
+    const mapStateToProps = state2PropsMaker(compName, props);
     const actionExtractor = () => props.actionLib;
     const compProps = {
         tagFactory: props.tagFactory || defaultTagFactory,
         root: pathGet(viewNodePath, props),
-        ...mapStateToProps2,
+        // ...mapStateToProps,
         stateNodeName,
     };
     return React.createElement(
-        connect(mapStateToProps2, actionExtractor())(
+        connect(mapStateToProps, actionExtractor())(
             withStyles(
                 defaultToEmpty(
                     pathGet(stylesPath, props)

@@ -8,18 +8,20 @@ import { fromYaml } from '../../modules/reactml/util';
 
 const sansProps = omit(['props', 'tag', 'content']);
 
-const mapPropName2Value = curry((rootProps, dottedName) => {
-    // Double dot is a function
-    if (isString(dottedName) && dottedName.startsWith('..')) {
-        let fn = rootProps[dottedName.substr(2)];
-        return fn;
+const mapPropName2Value = curry((tagGetter, rootProps, dottedName) => {
+    // console.log(`interpreting prop name: [${dottedName}]`);
+    let value = dottedName; // default
+    if (isString(dottedName) && dottedName.startsWith('...')) {
+        // triple tag is a react component
+        value = tagGetter({ tag: dottedName.substr(3) });
+    } else if (isString(dottedName) && dottedName.startsWith('..')) {
+        // Double dot is a function
+        value = rootProps[dottedName.substr(2)];
+    } else if (isString(dottedName) && dottedName[0] == '.') {
+        // single dot is a prop
+        value = pathGet(dottedName.substr(1).split('.'), rootProps);
     }
-
-    // single dot is a prop
-    if (isString(dottedName) && dottedName[0] == '.') {
-        return pathGet(dottedName.substr(1).split('.'), rootProps);
-    }
-    return dottedName;
+    return value;
 });
 
 // Given a reactml node, determine the react
@@ -63,34 +65,39 @@ const normalizeTree = (node) => {
     return { ...node, children };
 };
 
-const _mapPropsTree = (propGetter, node) => {
+const _mapPropsTree = (propGetter, tagGetter, node) => {
     const mappedProps = RMap(propGetter, node.props || {})
     return {
         ...node,
         props: mappedProps,
         content: node.content ? propGetter(node.content) : null,
-        children: node.children.map(child => _mapPropsTree(propGetter, child))
+        children: node.children.map(child => _mapPropsTree(propGetter, tagGetter, child))
     };
 };
 const mapPropsTree = curry(_mapPropsTree);
 
 const ReactMLNode = ({ tagGetter, node }) => {
+    // if (node && node.tag && node.tag == 'Route') {
+    //     debugger
+    // }
     const
         tag = tagGetter(node),
         children = node.content ? [node.content] :
             node.children.map((childNode, childKey) =>
                 isString(childNode) ? childNode :
-                    <ReactMLNode key={childKey} node={childNode}
-                        tagGetter={tagGetter} />);
+                    ReactMLNode({ tagGetter, node: childNode }));
+    // <ReactMLNode key={childKey} node={childNode}
+    //     tagGetter={tagGetter} />);
+    console.log(`creating ${node.tag}`);
     return React.createElement(tag, node.props, children.length ? children : null);
 };
 
 const render = (_deps) => (rootProps) => {
     const
         { tagFactory, root, stateNodeName } = rootProps,
-        propGetter = mapPropName2Value(rootProps),
         tagGetter = mapNode2Tag(tagFactory),
-        propMapper = mapPropsTree(propGetter),
+        propGetter = mapPropName2Value(tagGetter, rootProps),
+        propMapper = mapPropsTree(propGetter, tagGetter),
         convertToReact = (node) =>
             <ReactMLNode tagGetter={tagGetter} node={node} />,
 

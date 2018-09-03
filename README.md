@@ -52,6 +52,9 @@ components:
       Properties starting with a perid or dot are considered special. These properties can be dot-delimited names, and will be lookedup in redux state.
 
       Properties starting with two dots `..` are considered to be functions coming from the `actionLib` supplied by user.
+
+      Properties starting with three dots `...` are considered to be react element names, supplied in tagFactory.
+
   - `children`: children of this tag. The children can have tag, props etc.  If there's only one child, you can directly use the tag name without this `children` node.
   - `content`: content to render under this node. Can be a dot-separated name that begins with a dot (in which case it'll be looked up in redux state). If this exists, `children` will be ignored.
 

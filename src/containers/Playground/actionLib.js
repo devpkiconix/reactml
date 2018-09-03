@@ -1,5 +1,6 @@
 import yamlLib from 'js-yaml';
 import { curry } from 'ramda';
+import { push } from 'connected-react-router'
 import {
     reactmlFieldChangeHandler, reactmlSpecChangeValueHandler,
     reactmlFieldChangeValueHandler, dispatchApplyYaml,
@@ -48,7 +49,12 @@ const applyYaml = (event) => (dispatch) => {
     });
 };
 
+const gotoRoot = (event) => (dispatch) => dispatch(push('/'));
+const gotoEditor = (event) => (dispatch) => dispatch(push('/editor'));
+const gotoAbout = (event) => (dispatch) => dispatch(push('/about'));
+
 export default {
     onFirstNameChange, onEmailChange, save, toYaml, fromYaml,
     onChangeYaml, applyYaml,
+    gotoEditor, gotoRoot, gotoAbout,
 };

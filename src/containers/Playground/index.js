@@ -1,5 +1,5 @@
 import React from 'react';
-import Example from './play';
+import Example from './readonly';
 
 class index extends React.Component {
     render() {

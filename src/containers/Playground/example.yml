@@ -16,6 +16,10 @@ state:
     specError: ''
   stateNodeName: playground
 components:
+  About:
+    view:
+      tag: div
+      content: "Ain't this cool?"
   ReadOnly:
     state-to-props:
       email: user.email
