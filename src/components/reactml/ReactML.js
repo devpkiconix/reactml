@@ -14,31 +14,37 @@ const { connect, withStyles } = dependencies;
 
 const defaultToEmpty = defaultTo({})
 
-const state2PropsMaker = (pageName, props) => {
-    const state2propsPath = ['spec', 'components', pageName, 'state-to-props'];
+const state2PropsMaker = (compName, props) => {
+    const state2propsPath = ['spec', 'components', compName, 'state-to-props'];
+    const stateNodeName = props.spec.state.stateNodeName;
+
     const oState2pathSpec = defaultToEmpty(
         pathGet(state2propsPath, props)
     );
     return (state) => {
         const imPathGet =
-            (dotted) => state.reactml.getIn(dotted.split('.'));
-        return mapValues(oState2pathSpec, imPathGet);
+            (dotted) => state.reactml.getIn([stateNodeName].concat(dotted.split('.')));
+        const mapped = mapValues(oState2pathSpec, imPathGet);
+        // console.log(state.reactml.toJS(), "mapped", mapped);
+        return mapped;
     };
 };
 
 export const ReactML = (props) => {
-    const pageName = props.page;
-    const stylesPath = ['spec', 'components', pageName, 'styles'];
-    const viewNodePath = ['spec', 'components', pageName, 'view']
-    const mapStateToProps2 = state2PropsMaker(pageName, props);
+    const stateNodeName = props.stateNodeName;
+    const compName = props.component;
+    const stylesPath = ['spec', 'components', compName, 'styles'];
+    const viewNodePath = ['spec', 'components', compName, 'view']
+    const mapStateToProps = state2PropsMaker(compName, props);
     const actionExtractor = () => props.actionLib;
     const compProps = {
         tagFactory: props.tagFactory || defaultTagFactory,
         root: pathGet(viewNodePath, props),
-        ...mapStateToProps2,
+        // ...mapStateToProps,
+        stateNodeName,
     };
     return React.createElement(
-        connect(mapStateToProps2, actionExtractor())(
+        connect(mapStateToProps, actionExtractor())(
             withStyles(
                 defaultToEmpty(
                     pathGet(stylesPath, props)

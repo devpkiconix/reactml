@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react'
-import PlayGround from '../Playground';
+import YamlApp from '../Playground/app';
 
-export default () => <PlayGround />;
+export default (props) => <YamlApp />;
 
 

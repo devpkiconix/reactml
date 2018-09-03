@@ -1,4 +1,5 @@
 import { fromJS } from 'immutable';
+import { curry } from 'ramda';
 import yamlLib from 'js-yaml';
 
 export const toYaml = (x) => yamlLib.safeDump(x, { indent: 2 });
@@ -14,8 +15,10 @@ export const reactmlFieldChangeValueHandler = (name) => (value) => (dispatch) =>
     dispatchFieldUpdate(dispatch, name, value);
 }
 
-export const setField = (dottedName, value, state) =>
-    state.setIn(dottedName.split('.'), value);
+export const setField = (dottedName, stateNodeName, value, state) =>
+    state.setIn(stateNodeName ?
+        (stateNodeName + '.' + dottedName).split('.') :
+        dottedName.split('.'), value);
 
 export const reactmlSpecChangeValueHandler = (name) => (value) => (dispatch) => {
     dispatchFieldUpdate(dispatch, name, value);

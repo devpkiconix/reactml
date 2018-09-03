@@ -1,0 +1,14 @@
+state:
+  initial: {}
+  stateNodeName: playapp
+components:
+  App:
+    state-to-props: {}
+    view:
+      tag: div
+      children:
+        - tag: Appbar
+        - tag: main
+          children:
+            - tag: NavRoutes
+              props: {}

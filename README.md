@@ -34,6 +34,10 @@ Steps:
 Structure:
 
 ```
+state:
+  initial:
+    xxxx
+stateNodeName: zzzz
 components:
   Name:
     state-to-props:
@@ -42,8 +46,8 @@ components:
       children:
         - tag: yy
 ```
+  - `state` node describes the initial state to be set in redux. It's initialized in the node provided by `stateNodeName`.
   - `Name` is the name of the view. This needs to be supplied to the top-level reactml component.
-
   -  `state-to-props` - describes redux state to props for the component (`mapStateToProps`). The keys in this table are property names, and the values are the state names. The state names can be specified in dot-delimited format. E.g. user.address.street.
   - `view`: Tree of react components
   - `tag`: React element to be rendered.
@@ -52,6 +56,9 @@ components:
       Properties starting with a perid or dot are considered special. These properties can be dot-delimited names, and will be lookedup in redux state.
 
       Properties starting with two dots `..` are considered to be functions coming from the `actionLib` supplied by user.
+
+      Properties starting with three dots `...` are considered to be react element names, supplied in tagFactory.
+
   - `children`: children of this tag. The children can have tag, props etc.  If there's only one child, you can directly use the tag name without this `children` node.
   - `content`: content to render under this node. Can be a dot-separated name that begins with a dot (in which case it'll be looked up in redux state). If this exists, `children` will be ignored.
 
@@ -107,10 +114,24 @@ const TagFactory = { Button, Grid, Paper };
 
     <ReactML tagFactory={TagFactory1}
         spec={spec}
-        page='HomePage'
+        component='HomePage'
         actionLib={actionLib} />
 ```
 
+### ReactMLHoc
+
+A higher-order component that hides nitty gritty of state initialization (from YML) and other such details, into a function. It takes the following parameters:
+spec - YML spec
+
+  - `lib` - library of functions to be used for actions, event handling etc.
+  - `tagFactory` - React component tags used in the spec
+  - `stateNodeName` - Name of the node in redux store where the state is to be stored.
+  - `view` - Name of the view to render
+
+## Limitations
+
+  - No support for dynamic loops or conditionals
+  - Route specifications are not working if specified via YML
 ## Coming soon
 
   - Code generation
