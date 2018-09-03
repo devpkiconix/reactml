@@ -1,0 +1,29 @@
+state:
+  initial: {}
+  stateNodeName: switch
+components:
+  Switch:
+    state-to-props: {}
+    view:
+      tag: div
+      children:
+        - tag: main
+          children:
+            - tag: Switch
+              props: {}
+              children:
+              - tag: Route
+                props:
+                  exact: true
+                  path: /reactml/editor
+                  component: ...Editor
+              - tag: Route
+                props:
+                  exact: true
+                  path: /reactml/about
+                  component: ...About
+              - tag: Route
+                props:
+                  exact: true
+                  path: /reactml/view
+                  component: ...ReadOnly

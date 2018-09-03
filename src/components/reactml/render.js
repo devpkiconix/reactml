@@ -76,20 +76,18 @@ const _mapPropsTree = (propGetter, tagGetter, node) => {
 };
 const mapPropsTree = curry(_mapPropsTree);
 
-const ReactMLNode = ({ tagGetter, node }) => {
+const ReactMLNode = ({ key, tagGetter, node }) => {
     // if (node && node.tag && node.tag == 'Route') {
     //     debugger
     // }
     const
         tag = tagGetter(node),
         children = node.content ? [node.content] :
-            node.children.map((childNode, childKey) =>
+            node.children.map((childNode, key) =>
                 isString(childNode) ? childNode :
-                    ReactMLNode({ tagGetter, node: childNode }));
-    // <ReactMLNode key={childKey} node={childNode}
-    //     tagGetter={tagGetter} />);
+                    ReactMLNode({ key, tagGetter, node: childNode }));
     console.log(`creating ${node.tag}`);
-    return React.createElement(tag, node.props, children.length ? children : null);
+    return React.createElement(tag, { key, ...node.props }, children.length ? children : null);
 };
 
 const render = (_deps) => (rootProps) => {

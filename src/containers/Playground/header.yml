@@ -1,0 +1,30 @@
+state:
+  initial: {}
+  stateNodeName: links
+components:
+  Header:
+    state-to-props: {}
+    view:
+      tag: div
+      children:
+        - tag: div
+          children:
+            - tag: Link
+              props:
+                to: /reactml/view
+                # onClick: ..gotoRoot
+              content: 'home'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/editor
+                # onClick: ..gotoEditor
+              content: 'editor'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/about
+                # onClick: ..gotoAbout
+              content: 'about'

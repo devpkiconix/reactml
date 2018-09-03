@@ -1,52 +1,14 @@
 state:
   initial: {}
-  stateNodeName: app
+  stateNodeName: playapp
 components:
   App:
-    state-to-props:
-      email: user.email
-      firstName: user.firstName
+    state-to-props: {}
     view:
       tag: div
       children:
-        - tag: div
+        - tag: Appbar
+        - tag: main
           children:
-            - tag: Link
-              props:
-                to: /
-                # onClick: ..gotoRoot
-              content: 'home'
-            - tag: span
-              content: ' | '
-            - tag: Link
-              props:
-                to: /editor
-                # onClick: ..gotoEditor
-              content: 'editor'
-            - tag: span
-              content: ' | '
-            - tag: Link
-              props:
-                to: /about
-                # onClick: ..gotoAbout
-              content: 'about'
-        - tag: div
-          children:
-            - tag: Switch
+            - tag: NavRoutes
               props: {}
-              children:
-              - tag: Route
-                props:
-                  exact: true
-                  path: /editor
-                  component: ...Editor
-              - tag: Route
-                props:
-                  exact: true
-                  path: /about
-                  component: ...About
-              - tag: Route
-                props:
-                  exact: true
-                  path: /
-                  component: ...ReadOnly

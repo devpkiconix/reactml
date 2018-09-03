@@ -27,8 +27,10 @@ const hoc = (spec, lib, tagFactory, stateNodeName, view) => {
                 </Paper>);
         }
     }
-    function mapStateToProps(state) { return {} }
-    return connect(mapStateToProps, null)(View);
+
+    const mapStateToProps = (state) => { return {} };
+    return connect(mapStateToProps)(View);
 }
+
 
 export default hoc;

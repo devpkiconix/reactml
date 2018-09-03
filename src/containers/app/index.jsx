@@ -3,6 +3,6 @@
 import React from 'react'
 import YamlApp from '../Playground/app';
 
-export default () => <YamlApp />;
+export default (props) => <YamlApp />;
 
 
