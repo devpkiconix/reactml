@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react'
-import ReactMLApp from '../Playground/app';
+import YamlApp from '../Playground/app';
 
-export default () => <ReactMLApp />;
+export default () => <YamlApp />;
 
 
