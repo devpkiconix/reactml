@@ -3,9 +3,14 @@ state:
   stateNodeName: links
 components:
   Header:
+    styles:
+      root:
+        backgroundColor: lightYellow
     state-to-props: {}
     view:
       tag: div
+      props:
+        className: .classes.root
       children:
         - tag: div
           children:

@@ -17,7 +17,7 @@ const hoc = (spec, lib, tagFactory, stateNodeName, view) => {
 
         render() {
             return (
-                <Paper style={{ backgroundColor: 'lightGray' }}>
+                <Paper>
                     <ReactML
                         tagFactory={tagFactory}
                         stateNodeName={stateNodeName}
