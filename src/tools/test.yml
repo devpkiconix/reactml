@@ -1,0 +1,153 @@
+state:
+  initial:
+    user:
+        name: 'bar'
+        email: 'mynameisbar@example.com'
+        firstName: 'bar'
+        lastName: 'Barz'
+        address:
+            street: '1234 main street'
+            city: 'la la land'
+            zip: '00000'
+            state: 'restless'
+            country: 'somewhere'
+    status:
+        save: null
+    specError: ''
+  stateNodeName: playground
+components:
+  Test:
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+    view:
+      div:
+        props: {}
+        children:
+          - tag: div
+            content: foo
+          - tag: div
+            span4:
+              content: bar
+  About:
+    view:
+      tag: div
+      content: "Ain't this cool?"
+  ReadOnly:
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+    view:
+      tag: div
+      children:
+        - tag: h4
+          content: ReactML component name - ReadOnly
+        - tag: div
+          children:
+          - tag: span
+            content: 'Name: '
+          - tag: span
+            content: .firstName
+        - tag: div
+          children:
+          - tag: span
+            content: 'E-mail: '
+          - tag: span
+            content: .email
+  Editor:
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+      saveStatus: status.save
+      yaml: specText
+      onChangeYaml: onChangeYaml
+      yamlError: specError
+    styles:
+      root: { }
+      email: { }
+      error:
+        color: red
+        fontSize: small
+    dispach-to-props:
+      myAction: someAction
+    view:
+      tag: form
+      props:
+      children:
+        - tag: h4
+          content: ReactML component name - Editor
+        - tag: Grid
+          props:
+            container: true
+          Grid:
+            props: { item: true, xs: 12 }
+            Paper:
+              props:
+                className: .classes.root
+              Grid:
+                props:
+                  container: true
+                children:
+                - tag: Grid
+                  props: { item: true, xs: 4 }
+                  children:
+                  - tag: TextField
+                    props:
+                      className: textField
+                      label: Name
+                      value: .firstName # i.e. props.customerName
+                      onChange: ..onFirstNameChange
+                      helperText: What's your name?
+                      margin: normal
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 8
+                    className: .classes.email
+                  children:
+                  - tag: TextField
+                    props:
+                      label: E-mail
+                      value: .email
+                      helperText: What's your email address?
+                      onChange: ..onEmailChange
+                      margin: normal
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 12
+                  children:
+                  - tag: Button
+                    props:
+                      variant: contained
+                      color: primary
+                      onClick: ..save
+                    children:
+                    - tag: span
+                      content: Save
+                  - tag: Button
+                    props:
+                      color: secondary
+                    #   onClick: myAction
+                    span:
+                      content: cancel
+                  - tag: Status
+                    props:
+                      status: .saveStatus
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 10
+                  Paper:
+                      children:
+                      - tag: div
+                        content: 'Editor code:'
+                      - tag: pre
+                        props:
+                          style:
+                              fontFamily: Menlo
+                              fontSize: 10pt
+                        content: .yaml
+
+
+
