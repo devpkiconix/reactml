@@ -87,11 +87,13 @@ const mapStateToProps = ({ reactml }) => {
   };
 };
 
-const mapDispatchToActions = {
-  // TODO
+const mapActionsToProps = {
+  onFirstNameChange: lib.onFirstNameChange,
+  onEmailChange: lib.onEmailChange,
+  save: lib.save
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToActions
+  mapActionsToProps
 )(Editor);

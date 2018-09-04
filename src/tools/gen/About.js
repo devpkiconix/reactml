@@ -13,11 +13,9 @@ const mapStateToProps = ({ reactml }) => {
   return {};
 };
 
-const mapDispatchToActions = {
-  // TODO
-};
+const mapActionsToProps = null;
 
 export default connect(
   mapStateToProps,
-  mapDispatchToActions
+  mapActionsToProps
 )(About);
