@@ -2,14 +2,10 @@
   "author": "TeamIconix, LLC.",
   "license": "MIT",
   "homepage": "http://www.teamiconix.com",
+  "main": "index.js",
   "scripts": {
-    "deploy": "now && now alias",
-    "start": "react-app-rewired start",
-    "now-start": "serve -s ./build",
-    "build-ui": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
-    "precommit": "pretty-quick --staged",
     "codegen": "babel-node src/tools/codegen.js",
     "build": "babel --presets react,env --plugins transform-object-rest-spread -d build src"
   },

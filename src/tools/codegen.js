@@ -7,8 +7,8 @@ const htmlTags = require('html-tags');
 const voidHtmlTags = require('html-tags/void');
 const ejs = require("ejs");
 
-const TEMPLATE_DIR = `src/templates`;
-const GEN_DIR = `src/tools/gen`;
+const TEMPLATE_DIR = `node_modules/reactml/templates`;
+const GEN_DIR = `node_modules/reactml/tools/gen`;
 const VIEW_TEMPLATE_FILENAME = `${TEMPLATE_DIR}/view.jsx.ejs`;
 
 const stdTags = [...htmlTags, ...voidHtmlTags];
@@ -155,7 +155,7 @@ const ejsGen = (fileName, context) => new Promise((resolve, reject) => {
     })
 });
 
-const genComp = (comp, compName) => {
+const genComp = (outputDir) => (comp, compName) => {
     let reactComponentBody = genNode(comp.view);
     let mapStateToProps = `{}`;
     if (comp['state-to-props']) {
@@ -174,34 +174,34 @@ const genComp = (comp, compName) => {
         };
         return ejsGen(VIEW_TEMPLATE_FILENAME, context)
             .then(code => prettify(code))
-            .then(code => writeFileSync(`${GEN_DIR}/${compName}.jsx`, code));
+            .then(code => writeFileSync(`${outputDir}/${compName}.jsx`, code));
     });
 }
 
-const generateComps = R.compose(
+const generateComps = (outputDir) => R.compose(
     (proms) => Promise.all(proms),
     R.values,
-    R.mapObjIndexed(genComp),
+    R.mapObjIndexed(genComp(outputDir)),
     R.view(componentsLens),
     // dbgDump,
     BEGIN);
 
-const generator = R.compose(
+const generator = (outputDir) => R.compose(
     genTail,
-    generateComps,
+    generateComps(outputDir),
     genHeader,
     BEGIN);
 
 
-const processor = R.compose(
+const processor = (outputDir) => R.compose(
     // dbgDump,
-    generator,
+    generator(outputDir),
     // toString,
     normalizeChildren,
     parse,
     readFile,
     BEGIN);
 
+export default (ymlFile, outputDir = ".") => processor(outputDir)(ymlFile);
 
-const fileName = "src/tools/test.yml";
-processor(fileName);
+// processor(fileName);
