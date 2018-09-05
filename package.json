@@ -6,13 +6,18 @@
     "deploy": "now && now alias",
     "start": "react-app-rewired start",
     "now-start": "serve -s ./build",
-    "build": "react-app-rewired build",
+    "build-ui": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
     "precommit": "pretty-quick --staged",
-    "codegen": "babel-node src/tools/codegen.js"
+    "codegen": "babel-node src/tools/codegen.js",
+    "build": "babel --presets react,env --plugins transform-object-rest-spread -d build src"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-react": "^6.24.1",
     "chai": "^4.1.2",
     "chai-immutable": "^1.6.0",
     "flow-bin": "^0.77.0",
