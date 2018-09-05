@@ -16,14 +16,57 @@ state:
     specError: ''
   stateNodeName: playground
 components:
+  Header:
+    styles:
+      root:
+        backgroundColor: lightYellow
+    state-to-props: {}
+    view:
+      tag: div
+      props:
+        className: .classes.root
+      children:
+        - tag: div
+          children:
+            - tag: Link
+              props:
+                to: /reactml/view
+                # onClick: ..gotoRoot
+              content: 'home'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/editor
+                # onClick: ..gotoEditor
+              content: 'editor'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/about
+                # onClick: ..gotoAbout
+              content: 'about'
+  App:
+    state-to-props: {}
+    view:
+      tag: React.Fragment
+      children:
+        - tag: Header
+        - tag: main
+          children:
+            # Custom component that sets up Routes
+            # For some reason generated routes aren't working in reactml
+            - tag: NavRoutes
+              props: {}
   Test:
     state-to-props:
       email: user.email
       firstName: user.firstName
     view:
-      div:
-        props: {}
-        children:
+      tag: div
+      props: {}
+      children:
           - tag: div
             content: foo
           - tag: div

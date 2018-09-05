@@ -3,12 +3,10 @@ import yamlLib from 'js-yaml';
 import { isString } from 'ramda-adjunct';
 const R = require('ramda');
 const prettier = require("prettier");
+const htmlTags = require('html-tags');
+const voidHtmlTags = require('html-tags/void');
 
-const stdTags = [
-    'h1', 'h2', 'h3', 'h4',
-    'input', 'select', 'option', 'textarea', 'label',
-    'div', 'span', 'p', 'pre', 'em', 'u', 'ul', 'ol', 'li'
-];
+const stdTags = [...htmlTags, ...voidHtmlTags];
 
 const BEGIN = R.identity, END = R.identity;
 const dbgDump = console.log;
@@ -89,7 +87,7 @@ const genNode = (node) => {
             body = node.content;
         }
     } else {
-        body = renderChildren(node) || '';
+        body = genChildren(node) || '';
     }
     let tail = `</${node.tag}>`;
     return `${head.trim()}
@@ -98,7 +96,7 @@ ${tail.trim()}
 `
 };
 
-const renderChildren = (node) => {
+const genChildren = (node) => {
     if (!node.children) {
         return [''];
     }
@@ -132,7 +130,7 @@ const findActions = (node) => {
 };
 
 const genComp = (comp, compName) => {
-    let childrenCode = renderChildren(comp.view);
+    let reactComponentBody = genNode(comp.view);
     let tagList = reduce2TagList(comp.view);
     let tagNames = R.keys(R.omit(stdTags, tagList)).join(',');
     let tagImport = tagNames.length ?
@@ -161,11 +159,7 @@ const { ${tagNames} } = TagFactory;
 
         ${ tagImport.trim()}
 
-        const ${ compName} = (props) => {
-            return <React.Fragment>
-                ${childrenCode}
-            </React.Fragment>;
-        };
+        const ${ compName} = (props) => (${reactComponentBody});
 
         const mapStateToProps = ({ reactml }) => {
             let compState = reactml.get(stateNodeName);
@@ -179,7 +173,7 @@ const { ${tagNames} } = TagFactory;
         export default connect(mapStateToProps, mapActionsToProps)(${ compName});
         `;
 
-    writeFileSync(`src/tools/gen/${compName}.js`, prettify(code));
+    writeFileSync(`src/tools/gen/${compName}.jsx`, prettify(code));
     return code;
 }
 

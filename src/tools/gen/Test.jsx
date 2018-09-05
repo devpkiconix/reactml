@@ -4,25 +4,18 @@ import connect from "react-redux";
 
 import lib from "./lib";
 
-const ReadOnly = props => {
-  return (
-    <React.Fragment>
-      <h4>ReactML component name - ReadOnly</h4>
+import TagFactory from "./tag-factory";
+const { span4 } = TagFactory;
 
-      <div>
-        <span>Name:</span>
+const Test = props => (
+  <div>
+    <div>foo</div>
 
-        <span>{props.firstName}</span>
-      </div>
-
-      <div>
-        <span>E-mail:</span>
-
-        <span>{props.email}</span>
-      </div>
-    </React.Fragment>
-  );
-};
+    <div>
+      <span4>bar</span4>
+    </div>
+  </div>
+);
 
 const mapStateToProps = ({ reactml }) => {
   let compState = reactml.get(stateNodeName);
@@ -37,4 +30,4 @@ const mapActionsToProps = null;
 export default connect(
   mapStateToProps,
   mapActionsToProps
-)(ReadOnly);
+)(Test);

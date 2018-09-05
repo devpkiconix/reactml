@@ -4,9 +4,7 @@ import connect from "react-redux";
 
 import lib from "./lib";
 
-const About = props => {
-  return <React.Fragment />;
-};
+const About = props => <div>Ain't this cool?</div>;
 
 const mapStateToProps = ({ reactml }) => {
   let compState = reactml.get(stateNodeName);
