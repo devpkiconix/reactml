@@ -4,7 +4,7 @@
   "author": "TeamIconix, LLC.",
   "license": "MIT",
   "homepage": "http://www.teamiconix.com",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
