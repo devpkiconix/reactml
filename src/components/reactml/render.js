@@ -1,12 +1,11 @@
 import React from 'react';
 import {
-    __, curry, path as pathGet, keys, omit, map as RMap, pipe, pick,
+    __, curry, path as pathGet, map as RMap, pipe,
 } from 'ramda';
 import { isString } from 'ramda-adjunct';
 
 import { fromYaml } from '../../modules/reactml/util';
-
-const sansProps = omit(['props', 'tag', 'content']);
+import { normalizeNode } from '../../modules/reactml/normalize';
 
 const mapPropName2Value = curry((tagGetter, rootProps, dottedName) => {
     // console.log(`interpreting prop name: [${dottedName}]`);
@@ -39,31 +38,6 @@ const mapNode2Tag = curry((tagFactory, node) => {
 
 const maybeParse = (data) => (isString(data)) ? fromYaml(data) : data;
 
-const isLeaf = (node) => {
-    switch (node.tag) {
-        case 'input':
-        case 'textarea':
-            return true;
-        default:
-            break;
-    }
-    return false;
-}
-
-const normalizeTree = (node) => {
-    let childNodes = node.children;
-    if (!childNodes) {
-        childNodes = [];
-        if (keys(sansProps(node)).length == 1) {
-            let tag = keys(sansProps(node))[0];
-            let childNode = sansProps(node)[tag]
-            node = omit([tag], node);
-            childNodes = [{ tag, ...childNode, }];
-        }
-    }
-    let children = childNodes.map(normalizeTree);
-    return { ...node, children };
-};
 
 const _mapPropsTree = (propGetter, tagGetter, node) => {
     const mappedProps = RMap(propGetter, node.props || {})
@@ -77,9 +51,6 @@ const _mapPropsTree = (propGetter, tagGetter, node) => {
 const mapPropsTree = curry(_mapPropsTree);
 
 const ReactMLNode = ({ key, tagGetter, node }) => {
-    // if (node && node.tag && node.tag == 'Route') {
-    //     debugger
-    // }
     const
         tag = tagGetter(node),
         children = node.content ? [node.content] :
@@ -92,7 +63,7 @@ const ReactMLNode = ({ key, tagGetter, node }) => {
 
 const render = (_deps) => (rootProps) => {
     const
-        { tagFactory, root, stateNodeName } = rootProps,
+        { tagFactory, root } = rootProps,
         tagGetter = mapNode2Tag(tagFactory),
         propGetter = mapPropName2Value(tagGetter, rootProps),
         propMapper = mapPropsTree(propGetter, tagGetter),
@@ -101,12 +72,12 @@ const render = (_deps) => (rootProps) => {
 
         pipeline = pipe(
             maybeParse,
-            normalizeTree,
+            normalizeNode,
             propMapper,
             convertToReact
         );
 
-    return pipeline(root)
+    return pipeline(root);
 }
 
 export default { render };

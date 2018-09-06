@@ -5,12 +5,12 @@ const ReactMLArrayMapper = (props) => {
     if (!(over && as && component)) {
         return <div> Loading...</div>;
     }
-    const mapped = over.map((x, i) => {
+    const mapped = over.map((item, i) => {
         // debugger
         let newProps = {
             ...props,
             key: i,
-            [as]: x,
+            [as]: item,
         };
         return React.createElement(component, { ...newProps })
     });

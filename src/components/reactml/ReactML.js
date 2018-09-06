@@ -7,6 +7,7 @@ import mapValues from 'lodash/mapValues';
 import dependencies from './dependencies';
 import renderLib from './render';
 import defaultTagFactory from './materialUiTagFactory';
+import validate from '../../modules/reactml/validate';
 
 const renderer = curry(renderLib.render)(dependencies);
 
@@ -43,6 +44,16 @@ export const ReactML = (props) => {
         // ...mapStateToProps,
         stateNodeName,
     };
+    let spec = pathGet(['spec'], props);
+    let validationResults = validate(spec);
+    if (validationResults.errors) {
+        return <div>
+            <h2> Invalid Spec </h2>
+            <pre>
+                {JSON.stringify(validationResults)};
+            </pre>
+        </div>;
+    }
     return React.createElement(
         connect(mapStateToProps, actionExtractor())(
             withStyles(

@@ -8,7 +8,7 @@
   "scripts": {
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
-    "codegen": "babel-node src/tools/codegen.js",
+    "codegen": "TEMPLATE_DIR=./src/templates babel-node  src/tools/gen-example.js",
     "build": "babel --presets react,env --plugins transform-object-rest-spread -d build src"
   },
   "devDependencies": {
@@ -23,7 +23,8 @@
     "jest": "^23.4.1",
     "jest-cli": "^20.0.4",
     "react-app-rewire-yaml": "^1.0.0",
-    "react-app-rewired": "^1.5.2"
+    "react-app-rewired": "^1.5.2",
+    "redux-testkit": "^1.0.6"
   },
   "dependencies": {
     "@material-ui/core": "^1.4.1",
@@ -51,6 +52,7 @@
     "redux": "4.0.0",
     "redux-logger": "^3.0.6",
     "redux-thunk": "2.3.0",
+    "sanctuary": "^0.15.0",
     "typeface-roboto": "0.0.54"
   }
 }

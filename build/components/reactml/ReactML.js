@@ -27,6 +27,10 @@ var _materialUiTagFactory = require('./materialUiTagFactory');
 
 var _materialUiTagFactory2 = _interopRequireDefault(_materialUiTagFactory);
 
+var _validate = require('../../modules/reactml/validate');
+
+var _validate2 = _interopRequireDefault(_validate);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var renderer = (0, _ramda.curry)(_render2.default.render)(_dependencies2.default);
@@ -67,5 +71,24 @@ var ReactML = exports.ReactML = function ReactML(props) {
         // ...mapStateToProps,
         stateNodeName: stateNodeName
     };
+    var spec = (0, _ramda.path)(['spec'], props);
+    var validationResults = (0, _validate2.default)(spec);
+    if (validationResults.errors) {
+        return _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(
+                'h2',
+                null,
+                ' Invalid Spec '
+            ),
+            _react2.default.createElement(
+                'pre',
+                null,
+                JSON.stringify(validationResults),
+                ';'
+            )
+        );
+    }
     return _react2.default.createElement(connect(mapStateToProps, actionExtractor())(withStyles(defaultToEmpty((0, _ramda.path)(stylesPath, props)))(renderer)), compProps);
 };

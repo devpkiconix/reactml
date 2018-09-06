@@ -2,13 +2,14 @@ import { readFileSync, writeFileSync } from 'fs';
 import yamlLib from 'js-yaml';
 import { isString } from 'ramda-adjunct';
 const R = require('ramda');
-const prettier = require("prettier");
+import prettier from 'prettier';
 const htmlTags = require('html-tags');
 const voidHtmlTags = require('html-tags/void');
 const ejs = require("ejs");
 
-const TEMPLATE_DIR = `node_modules/reactml/templates`;
-const GEN_DIR = `node_modules/reactml/tools/gen`;
+import { normalizeChildren } from '../modules/reactml/normalize';
+
+const TEMPLATE_DIR = process.env.TEMPLATE_DIR || `node_modules/reactml/templates`;
 const VIEW_TEMPLATE_FILENAME = `${TEMPLATE_DIR}/view.jsx.ejs`;
 
 const stdTags = [...htmlTags, ...voidHtmlTags];
@@ -19,43 +20,10 @@ const prettify = (code) =>
     prettier.format(code, { semi: true, parser: "babylon" });
 
 const componentsLens = R.lensProp('components');
-const viewLens = R.lensProp('view');
-const childrenLens = R.lensProp('children');
 
-const readFile = (fn) => readFileSync(fileName);
+const readFile = (fn) => readFileSync(fn);
 const parse = (x) => yamlLib.safeLoad(x);
 const toString = (x) => yamlLib.safeDump(x, 2);
-
-const sansProps = R.omit(['props', 'tag', 'content']);
-
-const normalizeNode = (node) => {
-    if (node.content) {
-        // ignore child nodes
-        return R.set(childrenLens, [], node);
-    }
-    let childNodes = node.children;
-    if (!childNodes) {
-        childNodes = [];
-        if (R.keys(sansProps(node)).length == 1) {
-            let tag = R.keys(sansProps(node))[0];
-            let childNode = node[tag];
-            childNodes = [{ tag, ...childNode, }];
-            node = R.omit([tag], node);
-        }
-    }
-    return R.set(childrenLens, childNodes.map(normalizeNode), node);
-};
-
-const normalizeComp = (comp) => R.set(viewLens, normalizeNode(comp.view), comp);
-
-const normalizeCompArr = R.compose(
-    R.map(normalizeComp),
-    R.prop('components'),
-    BEGIN,
-);
-
-const normalizeChildren = (spec) =>
-    R.set(componentsLens, normalizeCompArr(spec), spec);
 
 const genTail = (x) => x;
 const genHeader = (x) => x;
@@ -194,14 +162,17 @@ const generator = (outputDir) => R.compose(
 
 
 const processor = (outputDir) => R.compose(
-    // dbgDump,
     generator(outputDir),
     // toString,
     normalizeChildren,
     parse,
     readFile,
+    (x) => (console.log(x), x),
     BEGIN);
 
-export default (ymlFile, outputDir = ".") => processor(outputDir)(ymlFile);
+export default (ymlFile, outputDir = "./gen") => {
+    debugger
+    processor(outputDir)(ymlFile);
+}
 
 // processor(fileName);
