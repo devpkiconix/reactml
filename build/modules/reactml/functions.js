@@ -15,6 +15,8 @@ var _ramda = require('ramda');
 
 var _ramdaAdjunct = require('ramda-adjunct');
 
+var _normalize = require('./normalize');
+
 var _util = require('./util');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -73,7 +75,9 @@ var node2children = function node2children(node) {
 };
 
 var traverse = function traverse(basicRender, tagGetter, propGetter) {
-    var nodeProcessor = function nodeProcessor(node, key) {
+    var nodeProcessor = function nodeProcessor(node) {
+        var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
         // console.log('node:', node.id, node)
         var mappedChildren = null;
         if (isLeaf(node)) {
@@ -95,9 +99,10 @@ var traverse = function traverse(basicRender, tagGetter, propGetter) {
 };
 
 var renderTree = exports.renderTree = function renderTree(propGetter, tagFactory) {
+    var tagGetter = mapNode2Tag(tagFactory);
+    var treeWalker = traverse(basicRenderReact, tagGetter, propGetter);
     return function (tree) {
-        var tagGetter = mapNode2Tag(tagFactory);
-        return traverse(basicRenderReact, tagGetter, propGetter)(tree);
+        return treeWalker(tree, 0);
     };
 };
 
@@ -126,5 +131,5 @@ var basicRenderCodegen = function basicRenderCodegen(tagGetter, mappedProps, map
 exports.default = {
     isLeaf: isLeaf,
     maybeParse: maybeParse, mapNode2Tag: mapNode2Tag, mapPropName2Value: mapPropName2Value, traverse: traverse,
-    renderTree: renderTree, codegenTree: codegenTree, node2children: node2children
+    renderTree: renderTree, codegenTree: codegenTree, node2children: node2children, normalizeNode: _normalize.normalizeNode
 };

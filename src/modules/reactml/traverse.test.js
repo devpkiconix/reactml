@@ -9,7 +9,7 @@ import { isString } from 'util';
 
 const chaiImmutable = require('chai-immutable');
 
-const { isLeaf, traverse, } = functions;
+const { isLeaf, traverse, normalizeNode } = functions;
 
 
 describe("tree traversal", () => {
@@ -99,11 +99,50 @@ describe("tree traversal", () => {
 
         const treeWalker = traverse(basicRender, tagGetter, propGetter);
         const results = treeWalker(sampleSpec.components.page1.view);
+
+        let lines = results.split('\n');
+        expect(lines[0].trim()).to.equal(`<div id={2} key={0}>`);
+        expect(lines[13].trim()).to.equal(`<Icon id={7} icon={"+LogoComponent"} key={0}>`);
+    });
+
+    it("normalize test", () => {
+        const spec = functions.maybeParse(spec2);
+        let node = normalizeNode(spec.components.Editor.view);
+        // console.log(JSON.stringify(node, null, 2));
+    });
+
+    it("react-style traversal2", () => {
+
+        const tagGetter = (node) => node.tag;
+        const propGetter = (val) => {
+            if (isString(val)) {
+                return val
+                    .replace(/^\.\.\./, '+')
+                    .replace(/^\.\./, '@')
+                    .replace(/^\./, '*');
+            }
+            return val;
+        };
+
+        const basicRender = (tagGetter, props, children, node) => {
+
+            const tag = tagGetter(node);
+            let sprops = '';
+            if (props) {
+                sprops = mapObjIndexed((v, k) => `${k}={${JSON.stringify(v)}}`, props)
+                sprops = values(sprops).join(" ");
+            }
+
+            return `<${tag} ${sprops}>\n  ${(children || []).join('\n')}  \n</${tag}>\n`;
+        };
+
+        const treeWalker = traverse(basicRender, tagGetter, propGetter);
+        const spec = functions.maybeParse(spec2);
+        const results = treeWalker(normalizeNode(spec.components.Editor.view));
         // console.log(results);
 
         let lines = results.split('\n');
-        expect(lines[0].trim()).to.equal(`<div id={2}>`);
-        expect(lines[13].trim()).to.equal(`<Icon id={7} icon={"+LogoComponent"}>`);
+        expect(lines[10].trim()).to.equal(`<TextField className={"textField"} label={"Name"} value={"*firstName"} onChange={"@onFirstNameChange"} helperText={"What's your name?"} margin={"normal"} key={0}>`);
     });
 
 });
@@ -143,3 +182,180 @@ const sampleSpec = {
         }
     }
 };
+
+const spec2 = `
+state:
+  initial:
+    user:
+        name: 'bar'
+        email: 'mynameisbar@example.com'
+        firstName: 'bar'
+        lastName: 'Barz'
+        address:
+            street: '1234 main street'
+            city: 'la la land'
+            zip: '00000'
+            state: 'restless'
+            country: 'somewhere'
+    status:
+        save: null
+    specError: ''
+    todoList:
+      -
+        label: Buy milk
+        done: true
+      -
+        label: Brew coffee
+        done: true
+      -
+        label: mix
+        done: false
+      -
+        label: sip
+        done: false
+  stateNodeName: playground
+components:
+  Footer:
+    view:
+      tag: Paper
+      children:
+        - tag: pre
+          props:
+            style:
+              color: maroon
+              paddingTop: 20px
+          content: "This prototype is rendered from a YML config file. Please see
+          *.yml files in src/containers/Playground folder"
+  TodoList:
+    state-to-props:
+      items: todoList
+    view:
+      tag: div
+      children:
+        - tag: ReactMLArrayMapper
+          props:
+            email: .user.email
+            over: .items
+            as: todo
+            component: ...Todo
+  About:
+    view:
+      tag: div
+      content: "Ain't this cool?"
+  ReadOnly:
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+    view:
+      tag: div
+      children:
+        - tag: h4
+          content: ReactML component name - ReadOnly
+        - tag: div
+          children:
+          - tag: span
+            content: 'Name: '
+          - tag: span
+            content: .firstName
+        - tag: div
+          children:
+          - tag: span
+            content: 'E-mail: '
+          - tag: span
+            content: .email
+  Editor:
+    state-to-props:
+      email: user.email
+      firstName: user.firstName
+      saveStatus: status.save
+      yaml: specText
+      onChangeYaml: onChangeYaml
+      yamlError: specError
+      todoList: todoList
+    styles:
+      root: { }
+      email: { }
+      error:
+        color: red
+        fontSize: small
+    dispach-to-props:
+      myAction: someAction
+    view:
+      tag: form
+      props:
+      children:
+        - tag: h4
+          content: ReactML component name - Editor
+        - tag: Grid
+          props:
+            container: true
+          Grid:
+            props: { item: true, xs: 12 }
+            Paper:
+              props:
+                className: .classes.root
+              Grid:
+                props:
+                  container: true
+                children:
+                - tag: Grid
+                  props: { item: true, xs: 4 }
+                  children:
+                  - tag: TextField
+                    props:
+                      className: textField
+                      label: Name
+                      value: .firstName # i.e. props.customerName
+                      onChange: ..onFirstNameChange
+                      helperText: What's your name?
+                      margin: normal
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 8
+                    className: .classes.email
+                  children:
+                  - tag: TextField
+                    props:
+                      label: E-mail
+                      value: .email
+                      helperText: What's your email address?
+                      onChange: ..onEmailChange
+                      margin: normal
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 12
+                  children:
+                  - tag: Button
+                    props:
+                      variant: contained
+                      color: primary
+                      onClick: ..save
+                    children:
+                    - tag: span
+                      content: Save
+                  - tag: Button
+                    props:
+                      color: secondary
+                    #   onClick: myAction
+                    span:
+                      content: cancel
+                  - tag: Status
+                    props:
+                      status: .saveStatus
+                - tag: Grid
+                  props:
+                    item: true
+                    xs: 10
+        - tag: Grid
+          props:
+            item: true
+            xs: 10
+          children:
+            - tag: ReactMLArrayMapper
+              props:
+                over: .todoList
+                as: todo
+                component: ...Todo
+`

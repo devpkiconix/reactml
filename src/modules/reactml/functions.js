@@ -4,6 +4,8 @@ import {
 } from 'ramda';
 import { isString } from 'ramda-adjunct';
 
+import { normalizeNode } from './normalize';
+
 import { fromYaml } from './util';
 
 const isLeaf = (node) =>
@@ -54,7 +56,7 @@ const sansProps = omit(['props', 'tag', 'content']);
 const node2children = (node) => node.content ? null : node.children;
 
 const traverse = (basicRender, tagGetter, propGetter) => {
-    const nodeProcessor = (node, key) => {
+    const nodeProcessor = (node, key = 0) => {
         // console.log('node:', node.id, node)
         let mappedChildren = null;
         if (isLeaf(node)) {
@@ -76,9 +78,10 @@ const traverse = (basicRender, tagGetter, propGetter) => {
 }
 
 
-export const renderTree = (propGetter, tagFactory) => (tree) => {
+export const renderTree = (propGetter, tagFactory) => {
     const tagGetter = mapNode2Tag(tagFactory);
-    return traverse(basicRenderReact, tagGetter, propGetter)(tree);
+    const treeWalker = traverse(basicRenderReact, tagGetter, propGetter);
+    return (tree) => treeWalker(tree, 0);
 }
 
 const codegenTree = (propGetter, _) => (tree) => {
@@ -109,6 +112,6 @@ ${childrenStr}
 export default {
     isLeaf,
     maybeParse, mapNode2Tag, mapPropName2Value, traverse,
-    renderTree, codegenTree, node2children,
+    renderTree, codegenTree, node2children, normalizeNode,
 };
 
