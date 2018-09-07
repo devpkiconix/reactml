@@ -26,9 +26,11 @@ const state2PropsMaker = (compName, props) => {
         const imPathGet = (dotted) => {
             const propPath = [stateNodeName].concat(dotted.split('.'));
             const propVal = state.reactml.getIn(propPath);
+            // console.log(propPath, propVal);
             return propVal;
         };
         const mapped = mapValues(oState2pathSpec, imPathGet);
+        // console.log("mappedProps:", mapped);
         return mapped;
     };
 };

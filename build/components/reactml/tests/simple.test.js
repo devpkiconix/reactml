@@ -24,7 +24,14 @@ var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
 
+var _functions = require('../../../modules/reactml/functions');
+
+var _functions2 = _interopRequireDefault(_functions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var maybeParse = _functions2.default.maybeParse;
+
 
 var tagFactory = {};
 var lib = {};

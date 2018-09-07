@@ -1,5 +1,5 @@
-import { functions } from '../render';
-import { fromYaml, toYaml } from '../../../modules/reactml/util';
+import functions from './functions';
+import { fromYaml, toYaml } from './util';
 
 import { expect } from 'chai';
 const chaiImmutable = require('chai-immutable');

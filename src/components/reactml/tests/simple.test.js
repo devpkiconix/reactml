@@ -5,6 +5,9 @@ import ReactMLArrayMapper from '../ArrayMapper';
 import ReactMLHoc from '../ReactMLHoc';
 import renderer from 'react-test-renderer';
 import store from './store';
+import functions from '../../../modules/reactml/functions';
+
+const { maybeParse } = functions;
 
 const tagFactory = {};
 const lib = {};

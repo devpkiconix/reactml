@@ -47,14 +47,14 @@ var state2PropsMaker = function state2PropsMaker(compName, props) {
 
     var oState2pathSpec = defaultToEmpty((0, _ramda.path)(state2propsPath, props));
     return function (state) {
-        console.log('83988jkfsldjfjsld', props);
         var imPathGet = function imPathGet(dotted) {
             var propPath = [stateNodeName].concat(dotted.split('.'));
             var propVal = state.reactml.getIn(propPath);
-            console.log(propPath, propVal);
+            // console.log(propPath, propVal);
             return propVal;
         };
         var mapped = (0, _mapValues2.default)(oState2pathSpec, imPathGet);
+        // console.log("mappedProps:", mapped);
         return mapped;
     };
 };

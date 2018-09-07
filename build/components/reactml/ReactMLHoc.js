@@ -47,8 +47,6 @@ var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, v
         }, {
             key: 'render',
             value: function render() {
-                debugger;
-
                 return _react2.default.createElement(_ReactML.ReactML, {
                     tagFactory: tagFactory,
                     stateNodeName: stateNodeName,

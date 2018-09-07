@@ -2,6 +2,7 @@ import React from 'react'
 
 const ReactMLArrayMapper = (props) => {
     const { over, as, component } = props;
+    // console.log("ArrMapper", props)
     if (!(over && as && component)) {
         return <div> Loading...</div>;
     }

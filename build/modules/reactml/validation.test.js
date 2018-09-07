@@ -2,10 +2,6 @@
 
 var _chai = require('chai');
 
-var _immutable = require('immutable');
-
-var _reduxTestkit = require('redux-testkit');
-
 var _validate = require('./validate');
 
 var _validate2 = _interopRequireDefault(_validate);
