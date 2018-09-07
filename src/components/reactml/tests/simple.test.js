@@ -106,7 +106,7 @@ describe("Basic reactml rendering", () => {
             components: {
                 coffee: {
                     'state-to-props': {
-                        todoList: '.todoList'
+                        todoList: 'todoList'
                     },
                     view: {
                         tag: 'div',
@@ -117,7 +117,7 @@ describe("Basic reactml rendering", () => {
                             {
                                 tag: 'ReactMLArrayMapper',
                                 props: {
-                                    over: '.todoList',
+                                    over: 'todoList',
                                     as: 'todo',
                                     component: '...Todo'
                                 }

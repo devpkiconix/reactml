@@ -38,7 +38,6 @@ const mapNode2Tag = curry((tagFactory, node) => {
 
 const maybeParse = (data) => (isString(data)) ? fromYaml(data) : data;
 
-
 const _mapPropsTree = (propGetter, tagGetter, node) => {
     const mappedProps = RMap(propGetter, node.props || {})
     return {
@@ -81,3 +80,8 @@ const render = (_deps) => (rootProps) => {
 }
 
 export default { render };
+
+// Exported functions for reuse and/or testing
+export let functions = {
+    maybeParse, mapNode2Tag, mapPropName2Value,
+};

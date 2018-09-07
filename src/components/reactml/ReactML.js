@@ -24,7 +24,7 @@ const state2PropsMaker = (compName, props) => {
     );
     return (state) => {
         const imPathGet = (dotted) => {
-            const propPath = [stateNodeName].concat(dotted.substr(1).split('.'));
+            const propPath = [stateNodeName].concat(dotted.split('.'));
             const propVal = state.reactml.getIn(propPath);
             return propVal;
         };

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _react = require('react');
+var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
@@ -19,11 +19,12 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
         as = props.as,
         component = props.component;
 
+    console.log("ArrMapper", props);
     if (!(over && as && component)) {
         return _react2.default.createElement(
-            'div',
+            "div",
             null,
-            ' Loading...'
+            " Loading..."
         );
     }
     var mapped = over.map(function (item, i) {
@@ -34,7 +35,7 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
         return _react2.default.createElement(component, _extends({}, newProps));
     });
     return _react2.default.createElement(
-        'div',
+        "div",
         null,
         mapped
     );

@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import { Map as ImMap, List as ImList, fromJS } from 'immutable';
-import { Reducer } from 'redux-testkit';
 import validate from './validate';
 
 const chai = require('chai');

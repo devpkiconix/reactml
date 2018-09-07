@@ -16,9 +16,8 @@ const stateInitHoc = (spec, lib, tagFactory, stateNodeName, view) => {
         }
 
         render() {
-            if (!this.props[stateNodeName]) {
-                return <div> Loading... </div>;
-            }
+            debugger
+
             return (<ReactML
                 tagFactory={tagFactory}
                 stateNodeName={stateNodeName}
