@@ -74,7 +74,7 @@ var ReactMLNode = function ReactMLNode(_ref) {
         children = node.content ? [node.content] : node.children.map(function (childNode, key) {
         return (0, _ramdaAdjunct.isString)(childNode) ? childNode : ReactMLNode({ key: key, tagGetter: tagGetter, node: childNode });
     });
-    console.log('creating ' + node.tag);
+    // console.log(`creating ${node.tag}`);
     return _react2.default.createElement(tag, _extends({ key: key }, node.props), children.length ? children : null);
 };
 

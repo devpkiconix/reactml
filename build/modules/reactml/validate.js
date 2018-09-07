@@ -100,7 +100,8 @@ var checkSingleChildTag = (0, _ramda.curry)(function (errors, path, node) {
 });
 
 var validateNode = (0, _ramda.curry)(function (errors, parentPath, container) {
-    if (container.isNothing) {
+    if (container.isLeft) {
+        errors.push({ path: parentPath, msg: 'Invalid spec, missing \'view\' specification' });
         return container;
     }
     var node = container.value;

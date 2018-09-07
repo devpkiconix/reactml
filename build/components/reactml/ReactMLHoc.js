@@ -16,12 +16,6 @@ var _reactRedux = require('react-redux');
 
 var _ReactML = require('../../components/reactml/ReactML');
 
-var _Paper = require('@material-ui/core/Paper');
-
-var _Paper2 = _interopRequireDefault(_Paper);
-
-var _util = require('../../modules/reactml/util');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -30,7 +24,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var hoc = function hoc(spec, lib, tagFactory, stateNodeName, view) {
+var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, view) {
     var View = function (_React$Component) {
         _inherits(View, _React$Component);
 
@@ -43,24 +37,29 @@ var hoc = function hoc(spec, lib, tagFactory, stateNodeName, view) {
         _createClass(View, [{
             key: 'componentDidMount',
             value: function componentDidMount() {
-                this.props.dispatch({
-                    type: 'REACTML_INIT', initial: _extends({}, spec.state.initial),
-                    stateNodeName: stateNodeName
-                });
+                if (spec.state.initial) {
+                    this.props.dispatch({
+                        type: 'REACTML_INIT', initial: _extends({}, spec.state.initial),
+                        stateNodeName: stateNodeName
+                    });
+                }
             }
         }, {
             key: 'render',
             value: function render() {
-                return _react2.default.createElement(
-                    _Paper2.default,
-                    null,
-                    _react2.default.createElement(_ReactML.ReactML, {
-                        tagFactory: tagFactory,
-                        stateNodeName: stateNodeName,
-                        spec: spec, component: view,
-                        actionLib: lib
-                    })
-                );
+                if (!this.props[stateNodeName]) {
+                    return _react2.default.createElement(
+                        'div',
+                        null,
+                        ' Loading... '
+                    );
+                }
+                return _react2.default.createElement(_ReactML.ReactML, {
+                    tagFactory: tagFactory,
+                    stateNodeName: stateNodeName,
+                    spec: spec, component: view,
+                    actionLib: lib
+                });
             }
         }]);
 
@@ -73,4 +72,4 @@ var hoc = function hoc(spec, lib, tagFactory, stateNodeName, view) {
     return (0, _reactRedux.connect)(mapStateToProps)(View);
 };
 
-exports.default = hoc;
+exports.default = stateInitHoc;

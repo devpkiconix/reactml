@@ -52,8 +52,6 @@ const checkCompsExistence = curry((errors, container) => {
 const validateComp = (errors) => compose(
     validateNode(errors, ["components", "view"]),
     propGet('view'),
-
-
     BEGIN
 );
 
@@ -95,7 +93,8 @@ const checkSingleChildTag = curry((errors, path, node) => {
 });
 
 const validateNode = curry((errors, parentPath, container) => {
-    if (container.isNothing) {
+    if (container.isLeft) {
+        errors.push({ path: parentPath, msg: `Invalid spec, missing 'view' specification` });
         return container;
     }
     const node = container.value;

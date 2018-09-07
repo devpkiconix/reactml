@@ -57,7 +57,7 @@ const ReactMLNode = ({ key, tagGetter, node }) => {
             node.children.map((childNode, key) =>
                 isString(childNode) ? childNode :
                     ReactMLNode({ key, tagGetter, node: childNode }));
-    console.log(`creating ${node.tag}`);
+    // console.log(`creating ${node.tag}`);
     return React.createElement(tag, { key, ...node.props }, children.length ? children : null);
 };
 

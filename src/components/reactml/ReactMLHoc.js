@@ -1,30 +1,30 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { ReactML } from '../../components/reactml/ReactML';
-import Paper from '@material-ui/core/Paper';
-import { toYaml } from '../../modules/reactml/util';
 
-const hoc = (spec, lib, tagFactory, stateNodeName, view) => {
+const stateInitHoc = (spec, lib, tagFactory, stateNodeName, view) => {
     class View extends React.Component {
         componentDidMount() {
-            this.props.dispatch({
-                type: 'REACTML_INIT', initial: {
-                    ...spec.state.initial,
-                },
-                stateNodeName,
-            })
+            if (spec.state.initial) {
+                this.props.dispatch({
+                    type: 'REACTML_INIT', initial: {
+                        ...spec.state.initial,
+                    },
+                    stateNodeName,
+                });
+            }
         }
 
         render() {
-            return (
-                <Paper>
-                    <ReactML
-                        tagFactory={tagFactory}
-                        stateNodeName={stateNodeName}
-                        spec={spec} component={view}
-                        actionLib={lib}
-                    />
-                </Paper>);
+            if (!this.props[stateNodeName]) {
+                return <div> Loading... </div>;
+            }
+            return (<ReactML
+                tagFactory={tagFactory}
+                stateNodeName={stateNodeName}
+                spec={spec} component={view}
+                actionLib={lib}
+            />);
         }
     }
 
@@ -33,4 +33,4 @@ const hoc = (spec, lib, tagFactory, stateNodeName, view) => {
 }
 
 
-export default hoc;
+export default stateInitHoc;

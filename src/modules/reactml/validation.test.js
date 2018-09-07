@@ -53,6 +53,27 @@ describe('validation', () => {
         expect(results).to.be.an('object');
         expect(results.errors).to.equal(null);
     });
+
+    it("reject components with no view node", () => {
+        const spec = {
+            state: {
+                stateNodeName: 'simple'
+            },
+            components: {
+                page1: {
+                    tag: 'div',
+                    children: [
+                        { tag: 'span', content: 'hello world' }
+                    ]
+                }
+            }
+        };
+        const results = validate(spec);
+        expect(results).to.be.an('object');
+        expect(results.errors).to.be.an('array');
+        expect(results.errors.length).to.equal(1);
+
+    });
     it("reject nodes with both content and children ", () => {
         let spec = {
             state: {},

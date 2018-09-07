@@ -57,6 +57,24 @@ describe('validation', function () {
         (0, _chai.expect)(results).to.be.an('object');
         (0, _chai.expect)(results.errors).to.equal(null);
     });
+
+    it("reject components with no view node", function () {
+        var spec = {
+            state: {
+                stateNodeName: 'simple'
+            },
+            components: {
+                page1: {
+                    tag: 'div',
+                    children: [{ tag: 'span', content: 'hello world' }]
+                }
+            }
+        };
+        var results = (0, _validate2.default)(spec);
+        (0, _chai.expect)(results).to.be.an('object');
+        (0, _chai.expect)(results.errors).to.be.an('array');
+        (0, _chai.expect)(results.errors.length).to.equal(1);
+    });
     it("reject nodes with both content and children ", function () {
         var spec = {
             state: {},
