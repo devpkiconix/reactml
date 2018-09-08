@@ -19,9 +19,3 @@ exports[`Basic reactml rendering Simple reactml renders correctly 1`] = `
   </span>
 </div>
 `;
-
-exports[`Basic reactml rendering array rendering 1`] = `
-<div>
-   Loading... 
-</div>
-`;

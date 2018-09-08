@@ -34,7 +34,11 @@ describe("Basic reactml rendering", () => {
         const spec = {
             state: {
                 stateNodeName: 'todoApp',
-                // initial,
+
+                // NOTE: State initialization is not tested here. That would require
+                // multiple redux actions to be processed asynchronously, and seems
+                // overly complex to test. For now, we'll test the case where the
+                // state has already been initialized.
             },
             components: {
                 todoListView: {
