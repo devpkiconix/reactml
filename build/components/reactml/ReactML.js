@@ -50,11 +50,11 @@ var state2PropsMaker = function state2PropsMaker(compName, props) {
         var imPathGet = function imPathGet(dotted) {
             var propPath = [stateNodeName].concat(dotted.split('.'));
             var propVal = state.reactml.getIn(propPath);
-            // console.log(propPath, propVal);
+
             return propVal;
         };
         var mapped = (0, _mapValues2.default)(oState2pathSpec, imPathGet);
-        // console.log("mappedProps:", mapped);
+
         return mapped;
     };
 };
@@ -71,7 +71,7 @@ var ReactML = exports.ReactML = function ReactML(props) {
     var compProps = {
         tagFactory: props.tagFactory || _materialUiTagFactory2.default,
         root: (0, _ramda.path)(viewNodePath, props),
-        // ...mapStateToProps,
+
         stateNodeName: stateNodeName
     };
     var spec = (0, _ramda.path)(['spec'], props);

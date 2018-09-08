@@ -18,7 +18,6 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
     var over = props.over,
         as = props.as,
         component = props.component;
-    // console.log("ArrMapper", props)
 
     if (!(over && as && component)) {
         return _react2.default.createElement(
@@ -28,7 +27,6 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
         );
     }
     var mapped = over.map(function (item, i) {
-        // debugger
         var newProps = _extends({}, props, _defineProperty({
             key: i
         }, as, item));

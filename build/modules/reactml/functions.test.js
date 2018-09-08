@@ -25,7 +25,6 @@ describe("Basic reactml rendering", function () {
         (0, _chai.expect)(obj).to.be.an('object');
         (0, _chai.expect)(yamlAgain).to.be.a('string');
 
-        // confirm that the two YAMLs eval to the same obj
         var objAgain = (0, _util.fromYaml)(yamlAgain);
         (0, _chai.expect)(obj.id).to.equal(objAgain.id);
 
@@ -34,23 +33,17 @@ describe("Basic reactml rendering", function () {
     });
 
     it("mapPropName2Value", function () {
-        // constants
         var Dummy1 = {},
             Dummy2 = {},
             STREET = 'SOME Street',
             ZIP = 12345,
             STREET_PROP = ".user.address.street",
-            // Note leading dot
-        ZIP_PROP = ".user.address.zip",
-            // Note leading dot
-        NOT_DEFINED_PROP = ".not-defined",
-            // Note leading dot
-        CONST_STRING = "a-const-string",
+            ZIP_PROP = ".user.address.zip",
+            NOT_DEFINED_PROP = ".not-defined",
+            CONST_STRING = "a-const-string",
             DUMMY1_PROP = '...Dummy1',
-            // note leading triple-dot
-        NOT_DEFINED_TAG_PROP = '...XYZ',
-            // note leading triple-dot
-        SAVE_PROP = "..save",
+            NOT_DEFINED_TAG_PROP = '...XYZ',
+            SAVE_PROP = "..save",
             NOT_DEFINED_ACTION_PROP = "..blah",
             dummyTagFactory = { Dummy1: Dummy1, Dummy2: Dummy2 };
 
@@ -67,7 +60,6 @@ describe("Basic reactml rendering", function () {
             }
         };
 
-        //NOte the leading dot
         var street = mapPropName2Value(tagGetter, rootProps, STREET_PROP);
         (0, _chai.expect)(street).to.equal(STREET);
 
@@ -80,13 +72,11 @@ describe("Basic reactml rendering", function () {
         var notaProp = mapPropName2Value(tagGetter, rootProps, CONST_STRING);
         (0, _chai.expect)(notaProp).to.equal(CONST_STRING);
 
-        // Function prop - TBD
         var fn1 = mapPropName2Value(tagGetter, rootProps, SAVE_PROP);
         (0, _chai.expect)(fn1).to.equal(rootProps.save);
         var fn2 = mapPropName2Value(tagGetter, rootProps, NOT_DEFINED_ACTION_PROP);
         (0, _chai.expect)(fn2).to.be.undefined;
 
-        // Tag props
         var tag1 = mapPropName2Value(tagGetter, rootProps, DUMMY1_PROP);
         (0, _chai.expect)(tag1).to.equal(Dummy1);
         var tag2 = mapPropName2Value(tagGetter, rootProps, NOT_DEFINED_TAG_PROP);

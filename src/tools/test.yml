@@ -26,6 +26,9 @@ components:
       props:
         className: .classes.root
       children:
+        - tag: Exotic
+          props:
+            component: ...Foo
         - tag: div
           children:
             - tag: Link

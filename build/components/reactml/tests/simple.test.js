@@ -80,7 +80,6 @@ describe("Basic reactml rendering", function () {
                 stateNodeName: 'compstate2'
             },
             components: {
-                /* view node should be here */
                 page1: {
                     tag: 'div',
                     children: [{ tag: 'span', content: 'hello world' }]

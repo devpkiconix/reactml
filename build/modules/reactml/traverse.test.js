@@ -25,12 +25,18 @@ describe("tree traversal", function () {
   it("leaf test", function () {
     var spec = sampleSpec;
     var boolRes = isLeaf(spec.components.page1.view.children[0]);
-    (0, _chai.expect)(boolRes).to.be.true;
+    (0, _chai.expect)(boolRes).to.be.false;
     boolRes = isLeaf(spec.components.page1.view.children[1]);
     (0, _chai.expect)(boolRes).to.be.false;
+    boolRes = isLeaf('foo');
+    (0, _chai.expect)(boolRes).to.be.true;
+    boolRes = isLeaf(1);
+    (0, _chai.expect)(boolRes).to.be.true;
   });
-  it("basic traversal", function () {
-
+  it("very basic traversal", function () {
+    var tree = {
+      tag: 'div', props: { id: 1 }, children: [{ tag: 'span', props: { id: 2 }, content: 'hello' }, { tag: 'span', props: { id: 3 }, content: 'world' }]
+    };
     var tagGetter = function tagGetter(node) {
       return node.tag;
     };
@@ -40,16 +46,51 @@ describe("tree traversal", function () {
       }
       return val;
     };
-    var basicRender = function basicRender(tagGetter, props, children, node) {
+
+    var numRenderCalls = 0;
+    var basicRender = function basicRender(tagGetter, propGetter, props, children, node) {
+      numRenderCalls++;
+      if ((0, _util2.isString)(node)) {
+        return propGetter(node);
+      }
       var tag = tagGetter(node);
 
-      // 'm' for mapped or modified
+      return { tag: tag, mprops: props, mchildren: children };
+    };
+
+    var treeWalker = traverse(basicRender, tagGetter, propGetter);
+    var results = treeWalker(tree);
+
+    (0, _chai.expect)(numRenderCalls).to.equal(5);
+    (0, _chai.expect)(results.tag).to.equal('div');
+    (0, _chai.expect)(results.mprops.id).to.equal(1);
+    (0, _chai.expect)(results.mchildren[0].mprops.id).to.equal(2);
+    (0, _chai.expect)(results.mchildren[0].mchildren[0]).to.equal('hello');
+    (0, _chai.expect)(results.mchildren[1].mprops.id).to.equal(3);
+    (0, _chai.expect)(results.mchildren[1].mchildren[0]).to.equal('world');
+  });
+  it("basic traversal", function () {
+    var tagGetter = function tagGetter(node) {
+      return node.tag;
+    };
+    var propGetter = function propGetter(val) {
+      if ((0, _util2.isString)(val)) {
+        return val.replace(/^\.\.\./, '+').replace(/^\.\./, '@').replace(/^\./, '*');
+      }
+      return val;
+    };
+    var basicRender = function basicRender(tagGetter, propGetter, props, children, node) {
+      if ((0, _util2.isString)(node)) {
+        return propGetter(node);
+      }
+      var tag = tagGetter(node);
+
       return { tag: tag, mprops: props, mchildren: children };
     };
 
     var treeWalker = traverse(basicRender, tagGetter, propGetter);
     var results = treeWalker(sampleSpec.components.page1.view);
-    // console.log(JSON.stringify(results, null, 2));
+
 
     var node2 = results;
     (0, _chai.expect)(node2.tag).to.equal('div');
@@ -92,8 +133,11 @@ describe("tree traversal", function () {
       }
       return val;
     };
-    var basicRender = function basicRender(tagGetter, props, children, node) {
+    var basicRender = function basicRender(tagGetter, propGetter, props, children, node) {
       var tag = tagGetter(node);
+      if ((0, _util2.isString)(node)) {
+        return propGetter(node);
+      }
       var sprops = '';
       if (props) {
         sprops = (0, _ramda.mapObjIndexed)(function (v, k) {
@@ -116,7 +160,6 @@ describe("tree traversal", function () {
   it("normalize test", function () {
     var spec = _functions2.default.maybeParse(spec2);
     var node = normalizeNode(spec.components.Editor.view);
-    // console.log(JSON.stringify(node, null, 2));
   });
 
   it("react-style traversal2", function () {
@@ -131,7 +174,10 @@ describe("tree traversal", function () {
       return val;
     };
 
-    var basicRender = function basicRender(tagGetter, props, children, node) {
+    var basicRender = function basicRender(tagGetter, propGetter, props, children, node) {
+      if ((0, _util2.isString)(node)) {
+        return propGetter(node);
+      }
 
       var tag = tagGetter(node);
       var sprops = '';
@@ -148,7 +194,7 @@ describe("tree traversal", function () {
     var treeWalker = traverse(basicRender, tagGetter, propGetter);
     var spec = _functions2.default.maybeParse(spec2);
     var results = treeWalker(normalizeNode(spec.components.Editor.view));
-    // console.log(results);
+
 
     var lines = results.split('\n');
     (0, _chai.expect)(lines[10].trim()).to.equal('<TextField className={"textField"} label={"Name"} value={"*firstName"} onChange={"@onFirstNameChange"} helperText={"What\'s your name?"} margin={"normal"} key={0}>');

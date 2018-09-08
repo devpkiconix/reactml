@@ -7,7 +7,10 @@ const htmlTags = require('html-tags');
 const voidHtmlTags = require('html-tags/void');
 const ejs = require("ejs");
 
+import functions from '../modules/reactml/functions';
 import { normalizeChildren } from '../modules/reactml/normalize';
+
+const { traverse } = functions;
 
 const TEMPLATE_DIR = process.env.TEMPLATE_DIR || `node_modules/reactml/templates`;
 const VIEW_TEMPLATE_FILENAME = `${TEMPLATE_DIR}/view.jsx.ejs`;
@@ -28,54 +31,6 @@ const toString = (x) => yamlLib.safeDump(x, 2);
 const genTail = (x) => x;
 const genHeader = (x) => x;
 
-const reactifyProps = props =>
-    Object.keys(props).reduce((code, key) => {
-        let value = props[key];
-        if (isString(value)) {
-            if (value.startsWith('...')) {
-                value = value.substr(3);
-            } else if (value.startsWith('.')) {
-                value = value.replace(/^\.*(.*)$/g, `props.$1`);
-            } else {
-                value = JSON.stringify(value, null, 2);
-            }
-        } else {
-            value = JSON.stringify(value, null, 2);
-        }
-        return `${code}
-        ${key}={${value}}`
-    }, '');
-
-const genNode = (node) => {
-    let props = reactifyProps(node.props || {}).trim();
-    if (props.length) {
-        props = ' ' + props;
-    }
-    let head = `<${node.tag}${props}>`;
-    let body;
-    if (node.content) {
-        if (node.content.startsWith('.')) {
-            body = node.content.replace(/^\.*(.*)$/g, `{props.$1}`);
-        } else {
-            body = node.content;
-        }
-    } else {
-        body = genChildren(node) || '';
-    }
-    let tail = `</${node.tag}>`;
-    return `${head.trim()}
-${body.trim()}
-${tail.trim()}
-`
-};
-
-const genChildren = (node) => {
-    if (!node.children) {
-        return [''];
-    }
-    return node.children.map(genNode).join('\n');
-}
-
 const reduce2TagList = (node, list = {}) => {
     return node.children.reduce((list, child) => {
         list[child.tag] = child.tag;
@@ -92,7 +47,7 @@ const findActions = (node) => {
     const myList = Object.keys(node.props || {})
         .map(k => node.props[k])
         .filter(isString)
-        .filter(name => name.startsWith('..'))
+        .filter(name => name.startsWith('..') && !name.startsWith('...'))
         .map(name => name.substr(2));
     // console.log('myList', myList);
     // console.log((node.children || []).map(child => child.props));
@@ -123,8 +78,46 @@ const ejsGen = (fileName, context) => new Promise((resolve, reject) => {
     })
 });
 
+
+const codegenTree = (propGetter, _) => (tree) => {
+    const tagGetter = (node) => node.tag;
+
+    return traverse(basicRenderCodegen, tagGetter, propGetter)(tree);
+}
+
+// mappedChildren is children already rendered
+const basicRenderCodegen = (tagGetter, propGetter, mappedProps, mappedChildren, node) => {
+    if (isString(node)) {
+        return propGetter(node);
+    }
+    let tag = tagGetter(node);
+    let sprops = '';
+    if (mappedProps) {
+        sprops = R.mapObjIndexed((v, k) => k == 'key' ? '' : `${k}=${v}`, mappedProps)
+        sprops = R.values(sprops).join(' ');
+    }
+    let schildren = (mappedChildren || []).join('\n');
+    return `
+<${tag} ${sprops}>
+${schildren}
+</${tag}>
+    `;
+}
+
 const genComp = (outputDir) => (comp, compName) => {
-    let reactComponentBody = genNode(comp.view);
+    const propGetter = (val) => {
+        if (isString(val) &&
+            (val.startsWith('.'))) {
+            val = val
+                .replace(/^\.\.\./, 'TagFactory.')
+                .replace(/^\.\./, 'props.')
+                .replace(/^\./, 'props.');
+        } else {
+            val = JSON.stringify(val);
+        }
+        return `{${val}}`;
+    };
+    let reactComponentBody = codegenTree(propGetter)(comp.view);
     let mapStateToProps = `{}`;
     if (comp['state-to-props']) {
         mapStateToProps = `{${reduceState2Props(comp['state-to-props'])}}`
@@ -170,9 +163,6 @@ const processor = (outputDir) => R.compose(
     (x) => (console.log(x), x),
     BEGIN);
 
-export default (ymlFile, outputDir = "./gen") => {
-    debugger
+export default (ymlFile, outputDir = "./gen") =>
     processor(outputDir)(ymlFile);
-}
 
-// processor(fileName);

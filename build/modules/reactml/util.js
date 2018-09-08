@@ -65,4 +65,4 @@ var reactmlSpecChangeValueHandler = exports.reactmlSpecChangeValueHandler = func
 
 var validateSpec = function validateSpec(spec) {
     return true;
-}; // for now
+};

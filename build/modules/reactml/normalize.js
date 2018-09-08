@@ -15,7 +15,6 @@ var sansProps = R.omit(['props', 'tag', 'content']);
 
 var normalizeNode = exports.normalizeNode = function normalizeNode(node) {
     if (node.content) {
-        // ignore child nodes
         return R.set(childrenLens, [], node);
     }
     var childNodes = node.children;

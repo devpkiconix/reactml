@@ -15,7 +15,6 @@ var _reactml2 = _interopRequireDefault(_reactml);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initialState = {};
-// const rootReducer = (state, action) => state;
 
 
 var rootReducer = (0, _redux.combineReducers)({
@@ -23,9 +22,3 @@ var rootReducer = (0, _redux.combineReducers)({
 });
 
 exports.default = (0, _redux.createStore)(rootReducer, initialState);
-
-// import configureStore from 'redux-mock-store';
-
-// const middlewares = []
-// const mockStore = configureStore(middlewares)
-// export default mockStore(initialState);

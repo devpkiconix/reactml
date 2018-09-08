@@ -26,18 +26,6 @@ exports.default = function (spec) {
     return { errors: errors };
 };
 
-//////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------/
-//--------------------------// Private functions //--------------------------/
-//---------------------------------------------------------------------------/
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * @errors - array to be filled in
- * @container - container wrapper containing 'components' node
- */
-
-
 var checkCompsType = (0, _ramda.curry)(function (errors, container) {
     var compsVal = container.value;
     if ((0, _ramdaAdjunct.isArray)(compsVal)) {
@@ -63,13 +51,9 @@ var validateComp = function validateComp(errors) {
 };
 
 var validateCompTree = function validateCompTree(errors) {
-    return (0, _ramda.compose)(
-    // (comps) => comps ? RMap(validateComp(errors), comps) : comps,
-    _sanctuary2.default.map(validateComp(errors)), function (wrapper) {
+    return (0, _ramda.compose)(_sanctuary2.default.map(validateComp(errors)), function (wrapper) {
         return wrapper.value;
-    }, checkCompsType(errors), checkCompsExistence(errors),
-    // componentsGet
-    propGet("components"));
+    }, checkCompsType(errors), checkCompsExistence(errors), propGet("components"));
 };
 
 var checkExistenceOfBothContentAndChildren = (0, _ramda.curry)(function (errors, path, node) {
@@ -110,9 +94,7 @@ var validateNode = (0, _ramda.curry)(function (errors, parentPath, container) {
     }
     var myPath = nodePath(node, parentPath);
 
-    var verify = (0, _ramda.compose)(
-    // S.map(validateNode(errors, myPath)),
-    function (children_) {
+    var verify = (0, _ramda.compose)(function (children_) {
         var children = children_.value;
         if (children_.isLeft) {
             return;

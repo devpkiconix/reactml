@@ -22,29 +22,23 @@ var _util = require('./util');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var isLeaf = function isLeaf(node) {
-    return !!(node.content || node.children && node.children.length == 0);
-};
+    var res = !(0, _ramdaAdjunct.isObject)(node);
 
+    return res;
+};
 var mapPropName2Value = (0, _ramda.curry)(function (tagGetter, rootProps, dottedName) {
-    // console.log(`interpreting prop name: [${dottedName}]`);
-    var value = dottedName; // default
+    var value = dottedName;
     if ((0, _ramdaAdjunct.isString)(dottedName) && dottedName.startsWith('...')) {
-        // triple tag is a react component
         value = tagGetter({ tag: dottedName.substr(3) });
     } else if ((0, _ramdaAdjunct.isString)(dottedName) && dottedName.startsWith('..')) {
-        // Double dot is a function
         value = rootProps[dottedName.substr(2)];
     } else if ((0, _ramdaAdjunct.isString)(dottedName) && dottedName[0] == '.') {
-        // single dot is a prop
         value = (0, _ramda.path)(dottedName.substr(1).split('.'), rootProps);
     }
     return value;
 });
 
-// Given a reactml node, determine the react
-// class/function (i.e. JSX tag)
 var mapNode2Tag = (0, _ramda.curry)(function (tagFactory, node) {
-    // console.log("node", node)
     if ((0, _ramdaAdjunct.isString)(node)) {
         return node;
     }
@@ -71,28 +65,28 @@ var _mapPropsTree = function _mapPropsTree(propGetter, tagGetter, node) {
 
 var sansProps = (0, _ramda.omit)(['props', 'tag', 'content']);
 var node2children = function node2children(node) {
-    return node.content ? null : node.children;
+    var children = node.content ? [node.content] : node.children;
+
+    return children;
 };
 
 var traverse = function traverse(basicRender, tagGetter, propGetter) {
     var nodeProcessor = function nodeProcessor(node) {
         var key = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-        // console.log('node:', node.id, node)
-        var mappedChildren = null;
+        var children = null,
+            mappedChildren = null,
+            mappedProps = null;
         if (isLeaf(node)) {
-            if (node.content) {
-                mappedChildren = [propGetter(node.content)];
-            } else {
-                // do nothing
-            }
+            children = [];
+            mappedProps = null;
         } else {
-            var children = node2children(node);
-            mappedChildren = children ? children.map(nodeProcessor) : null;
+            var _children = node2children(node);
+            mappedChildren = _children ? _children.map(nodeProcessor) : null;
+            mappedProps = (0, _ramda.map)(propGetter, node.props || {});
+            mappedProps.key = key;
         }
-        var mappedProps = (0, _ramda.map)(propGetter, node.props || {});
-        mappedProps.key = key;
-        var rendered = basicRender(tagGetter, mappedProps, mappedChildren, node);
+        var rendered = basicRender(tagGetter, propGetter, mappedProps, mappedChildren, node);
         return rendered;
     };
     return nodeProcessor;
@@ -116,18 +110,21 @@ var codegenTree = function codegenTree(propGetter, _) {
     };
 };
 
-var basicRenderReact = function basicRenderReact(tagGetter, mappedProps, mappedChildren, node) {
-    // console.log("basicRenderReact", mappedProps)
-
+var basicRenderReact = function basicRenderReact(tagGetter, propGetter, mappedProps, mappedChildren, node) {
+    if ((0, _ramdaAdjunct.isString)(node)) {
+        return propGetter(node);
+    }
     return _react2.default.createElement(tagGetter(node), mappedProps, mappedChildren);
 };
 
-var basicRenderCodegen = function basicRenderCodegen(tagGetter, mappedProps, mappedChildren, node) {
+var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mappedProps, mappedChildren, node) {
     var tag = tagGetter(node);
+    if ((0, _ramdaAdjunct.isString)(node)) {
+        return propGetter(node);
+    }
     return '\n<' + tag + ' ' + propsStr + '>\n' + childrenStr + '\n</' + tag + '>\n    ';
 };
 
-// Exported functions for reuse and/or testing
 exports.default = {
     isLeaf: isLeaf,
     maybeParse: maybeParse, mapNode2Tag: mapNode2Tag, mapPropName2Value: mapPropName2Value, traverse: traverse,

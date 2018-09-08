@@ -42,4 +42,4 @@ var applyYml = function applyYml(state, stateNodeName, textName, specName) {
 
 var validateSpec = function validateSpec(spec) {
     return true;
-}; // for now
+};

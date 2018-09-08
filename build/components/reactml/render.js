@@ -30,7 +30,6 @@ var maybeParse = _functions2.default.maybeParse,
 
 var render = function render(_deps) {
     return function (rootProps) {
-        // console.log("rootProps", rootProps)
         var tagFactory = rootProps.tagFactory,
             root = rootProps.root,
             tagGetter = mapNode2Tag(tagFactory),

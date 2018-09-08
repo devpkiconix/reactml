@@ -9,7 +9,7 @@
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
     "codegen": "TEMPLATE_DIR=./src/templates babel-node  src/tools/gen-example.js",
-    "build": "babel --presets react,env --plugins transform-object-rest-spread -d build src"
+    "build": "babel --presets react,env --plugins transform-object-rest-spread --no-comments -d build src"
   },
   "devDependencies": {
     "babel": "^6.23.0",
