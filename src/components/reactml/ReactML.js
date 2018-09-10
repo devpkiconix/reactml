@@ -16,6 +16,9 @@ const { connect, withStyles } = dependencies;
 const defaultToEmpty = defaultTo({})
 
 const state2PropsMaker = (compName, props) => {
+    if (!props.spec) {
+        debugger
+    }
     const state2propsPath = ['spec', 'components', compName, 'state-to-props'];
     const stateNodeName = props.spec.state.stateNodeName;
 
@@ -48,6 +51,24 @@ export const ReactML = (props) => {
         // ...mapStateToProps,
         stateNodeName,
     };
+
+    // augment tag factory with components defined within the spec
+    let comps = pathGet(['spec', 'components'])(props);
+    Object.keys(comps).forEach(name => {
+        if (name !== compName && !props.tagFactory[name]) {
+            props.tagFactory[name] = (props2 = {}) =>{
+                return (<ReactML
+                    tagFactory={props.tagFactory}
+                    stateNodeName={stateNodeName}
+                    spec={spec}
+                    component={name}
+                    actionLib={props.actionLib}
+                    {...props2}
+                    />);
+            }
+        }
+    });
+
     let spec = pathGet(['spec'], props);
     let validationResults = validate(spec);
     if (validationResults.errors) {

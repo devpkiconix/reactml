@@ -2,13 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { ReactML } from '../../components/reactml/ReactML';
 
-const stateInitHoc = (spec, lib, tagFactory, stateNodeName, view) => {
+const ReactmlHoc = (spec, actionLib, tagFactory, stateNodeName, view) => {
     class View extends React.Component {
         componentDidMount() {
             if (spec.state.initial) {
                 this.props.dispatch({
                     type: 'REACTML_INIT', initial: {
                         ...spec.state.initial,
+                        spec, actionLib, tagFactory,
+                        stateNodeName,
                     },
                     stateNodeName,
                 });
@@ -20,7 +22,7 @@ const stateInitHoc = (spec, lib, tagFactory, stateNodeName, view) => {
                 tagFactory={tagFactory}
                 stateNodeName={stateNodeName}
                 spec={spec} component={view}
-                actionLib={lib}
+                actionLib={actionLib}
             />);
         }
     }
@@ -30,4 +32,4 @@ const stateInitHoc = (spec, lib, tagFactory, stateNodeName, view) => {
 }
 
 
-export default stateInitHoc;
+export default ReactmlHoc;

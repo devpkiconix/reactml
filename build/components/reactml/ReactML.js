@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ReactML = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -42,6 +44,9 @@ var connect = _dependencies2.default.connect,
 var defaultToEmpty = (0, _ramda.defaultTo)({});
 
 var state2PropsMaker = function state2PropsMaker(compName, props) {
+    if (!props.spec) {
+        debugger;
+    }
     var state2propsPath = ['spec', 'components', compName, 'state-to-props'];
     var stateNodeName = props.spec.state.stateNodeName;
 
@@ -74,6 +79,24 @@ var ReactML = exports.ReactML = function ReactML(props) {
 
         stateNodeName: stateNodeName
     };
+
+    var comps = (0, _ramda.path)(['spec', 'components'])(props);
+    Object.keys(comps).forEach(function (name) {
+        if (name !== compName && !props.tagFactory[name]) {
+            props.tagFactory[name] = function () {
+                var props2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+                return _react2.default.createElement(ReactML, _extends({
+                    tagFactory: props.tagFactory,
+                    stateNodeName: stateNodeName,
+                    spec: spec,
+                    component: name,
+                    actionLib: props.actionLib
+                }, props2));
+            };
+        }
+    });
+
     var spec = (0, _ramda.path)(['spec'], props);
     var validationResults = (0, _validate2.default)(spec);
     if (validationResults.errors) {

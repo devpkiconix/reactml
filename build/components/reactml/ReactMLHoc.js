@@ -24,7 +24,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, view) {
+var ReactmlHoc = function ReactmlHoc(spec, actionLib, tagFactory, stateNodeName, view) {
     var View = function (_React$Component) {
         _inherits(View, _React$Component);
 
@@ -39,7 +39,10 @@ var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, v
             value: function componentDidMount() {
                 if (spec.state.initial) {
                     this.props.dispatch({
-                        type: 'REACTML_INIT', initial: _extends({}, spec.state.initial),
+                        type: 'REACTML_INIT', initial: _extends({}, spec.state.initial, {
+                            spec: spec, actionLib: actionLib, tagFactory: tagFactory,
+                            stateNodeName: stateNodeName
+                        }),
                         stateNodeName: stateNodeName
                     });
                 }
@@ -51,7 +54,7 @@ var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, v
                     tagFactory: tagFactory,
                     stateNodeName: stateNodeName,
                     spec: spec, component: view,
-                    actionLib: lib
+                    actionLib: actionLib
                 });
             }
         }]);
@@ -65,4 +68,4 @@ var stateInitHoc = function stateInitHoc(spec, lib, tagFactory, stateNodeName, v
     return (0, _reactRedux.connect)(mapStateToProps)(View);
 };
 
-exports.default = stateInitHoc;
+exports.default = ReactmlHoc;

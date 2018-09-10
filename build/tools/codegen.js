@@ -140,7 +140,7 @@ var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mapp
         sprops = R.values(sprops).join(' ');
     }
     var schildren = (mappedChildren || []).join('\n');
-    return '\n<' + tag + ' ' + sprops + '>\n' + schildren + '\n</' + tag + '>\n    ';
+    return '<' + tag + ' ' + sprops + '>\n' + schildren + '\n</' + tag + '>';
 };
 
 var genComp = function genComp(outputDir) {

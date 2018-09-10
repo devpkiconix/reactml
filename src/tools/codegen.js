@@ -97,11 +97,9 @@ const basicRenderCodegen = (tagGetter, propGetter, mappedProps, mappedChildren, 
         sprops = R.values(sprops).join(' ');
     }
     let schildren = (mappedChildren || []).join('\n');
-    return `
-<${tag} ${sprops}>
+    return `<${tag} ${sprops}>
 ${schildren}
-</${tag}>
-    `;
+</${tag}>`;
 }
 
 const genComp = (outputDir) => (comp, compName) => {
