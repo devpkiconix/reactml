@@ -37,7 +37,8 @@ var ReactmlHoc = function ReactmlHoc(spec, actionLib, tagFactory, stateNodeName,
         _createClass(View, [{
             key: 'componentDidMount',
             value: function componentDidMount() {
-                if (spec.state.initial) {
+                if (spec.state.initial && this.props.stateInitialized === false) {
+
                     this.props.dispatch({
                         type: 'REACTML_INIT', initial: _extends({}, spec.state.initial, {
                             spec: spec, actionLib: actionLib, tagFactory: tagFactory,
@@ -63,7 +64,13 @@ var ReactmlHoc = function ReactmlHoc(spec, actionLib, tagFactory, stateNodeName,
     }(_react2.default.Component);
 
     var mapStateToProps = function mapStateToProps(state) {
-        return {};
+        var reactml = state.reactml;
+        var stateInitialized = false;
+
+        if (reactml.get(stateNodeName)) {
+            stateInitialized = true;
+        }
+        return { stateInitialized: stateInitialized };
     };
     return (0, _reactRedux.connect)(mapStateToProps)(View);
 };
