@@ -1,21 +1,20 @@
-import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
-import { ConnectedRouter } from 'connected-react-router'
-import makeStore, { history } from './store'
-import App from './containers/app'
+import { ReactML, } from './components/reactml/ReactML';
+import ReactMLHoc from './components/reactml/ReactMLHoc';
+import ReactMLArrayMapper from './components/reactml/ArrayMapper';
 
-import './index.css'
+import reducer from './modules/reactml';
 
-const target = document.querySelector('#root')
-const store = makeStore();
+import {
+	reactmlFieldChangeHandler,
+	dispatchFieldUpdate,
+	fromYaml, toYaml,
+} from './modules/reactml/util';
 
-render(
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <App />
-    </ConnectedRouter>
-  </Provider>,
-  target
-)
+import materialUiTagFactory from './components/reactml/materialUiTagFactory';
 
+export default {
+  ReactML, ReactMLHoc, ReactMLArrayMapper,
+  reducer,
+  materialUiTagFactory,
+  reactmlFieldChangeHandler, fromYaml, toYaml, dispatchFieldUpdate
+};

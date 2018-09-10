@@ -14,8 +14,107 @@ state:
     status:
         save: null
     specError: ''
+    todoList:
+      -
+        label: Buy milk
+        done: true
+      -
+        label: Brew coffee
+        done: true
+      -
+        label: mix
+        done: false
+      -
+        label: sip
+        done: false
   stateNodeName: playground
+
 components:
+  App:
+    view:
+      tag: main
+      children:
+        - tag: Header
+        - tag: div
+          children:
+            - tag: Route
+              props:
+                path: /
+                component: ...ReadOnly
+            - tag: Route
+              props:
+                path: /reactml/view
+                component: ...ReadOnly
+                exact: true
+            - tag: Route
+              props:
+                path: '/reactml/editor'
+                component: ...Editor
+                exact: true
+            - tag: Route
+              props:
+                path: '/reactml/about'
+                component: ...About
+                exact: true
+        #     spec: .spec
+        #     actionLib: .actionLib
+        #     tagFactory: .tagFactory
+        #     stateNodeName: .stateNodeName
+        - tag: Footer
+  Header:
+    styles:
+      root:
+        backgroundColor: lightYellow
+    state-to-props: {}
+    view:
+      tag: div
+      props:
+        className: .classes.root
+      children:
+        - tag: div
+          children:
+            - tag: Link
+              props:
+                to: /reactml/view
+                # onClick: ..gotoRoot
+              content: 'home'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/editor
+                # onClick: ..gotoEditor
+              content: 'editor'
+            - tag: span
+              content: ' | '
+            - tag: Link
+              props:
+                to: /reactml/about
+                # onClick: ..gotoAbout
+              content: 'about'
+  Footer:
+    view:
+      tag: Paper
+      children:
+        - tag: pre
+          props:
+            style:
+              color: maroon
+              paddingTop: 20px
+          content: "This prototype is rendered from a YML config file. Please see
+          *.yml files in src/containers/Playground folder"
+  TodoList:
+    state-to-props:
+      items: todoList
+    view:
+      tag: div
+      children:
+        - tag: ReactMLArrayMapper
+          props:
+            email: .user.email
+            over: .items
+            as: todo
+            component: ...Todo
   About:
     view:
       tag: div
@@ -49,6 +148,7 @@ components:
       yaml: specText
       onChangeYaml: onChangeYaml
       yamlError: specError
+      todoList: todoList
     styles:
       root: { }
       email: { }
@@ -104,7 +204,7 @@ components:
                     item: true
                     xs: 12
                   children:
-                  - tag: Button
+                  - tag: button
                     props:
                       variant: contained
                       color: primary
@@ -112,7 +212,7 @@ components:
                     children:
                     - tag: span
                       content: Save
-                  - tag: Button
+                  - tag: button
                     props:
                       color: secondary
                     #   onClick: myAction
@@ -125,16 +225,13 @@ components:
                   props:
                     item: true
                     xs: 10
-                  Paper:
-                      children:
-                      - tag: div
-                        content: 'Editor code:'
-                      - tag: pre
-                        props:
-                          style:
-                              fontFamily: Menlo
-                              fontSize: 10pt
-                        content: .yaml
-
-
-
+        - tag: Grid
+          props:
+            item: true
+            xs: 10
+          children:
+            - tag: ReactMLArrayMapper
+              props:
+                over: .todoList
+                as: todo
+                component: ...Todo

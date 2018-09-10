@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Reactml rendering of nested components auto-add to tag factory 1`] = `
+<div>
+  <span>
+    hello world
+  </span>
+  <span>
+    low
+  </span>
+  <span>
+    low too
+  </span>
+</div>
+`;

@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test non-reactml renders correctly 1`] = `
+<span>
+  <span>
+    hello world
+  </span>
+</span>
+`;
