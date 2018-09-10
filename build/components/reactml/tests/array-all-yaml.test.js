@@ -33,7 +33,7 @@ var initial = {
     todoList: [{ label: "get milk", done: true }, { label: "buy beans", done: true }, { label: "grind beans", done: true }, { label: "brew coffee", done: false }, { label: "boil milk", done: false }, { label: "mix'em up", done: false }, { label: "enjoy", done: false }]
 };
 
-describe("Basic reactml rendering", function () {
+describe("Uninterpreted props", function () {
     beforeEach(function () {
         return _store2.default.dispatch({
             type: 'REACTML_INIT',
@@ -42,13 +42,28 @@ describe("Basic reactml rendering", function () {
         });
     });
 
-    it("array rendering", function () {
+    it("array rendering with uninterpreted props", function () {
         var spec = {
             state: {
                 stateNodeName: 'todoApp'
 
             },
             components: {
+                Todo: {
+                    view: {
+                        tag: 'div',
+                        children: [{
+                            tag: 'input',
+                            props: {
+                                type: 'checkbox',
+                                value: '.todo.done'
+                            }
+                        }, {
+                            tag: 'span',
+                            content: '.todo.label'
+                        }]
+                    }
+                },
                 todoListView: {
                     'state-to-props': {
                         todoList: 'todoList'
@@ -70,32 +85,17 @@ describe("Basic reactml rendering", function () {
 
             }
         };
-        var Todo = function Todo(_ref) {
-            var todo = _ref.todo;
-            return _react2.default.createElement(
-                'div',
-                { className: 'checkbox' },
-                _react2.default.createElement(
-                    'label',
-                    null,
-                    _react2.default.createElement('input', { type: 'checkbox', value: todo.label,
-                        checked: todo.done }),
-                    todo.label
-                )
-            );
-        };
-
         var actionLib = {};
-        var tagFactory = { ReactMLArrayMapper: _ArrayMapper2.default, Todo: Todo };
+        var tagFactory = { ReactMLArrayMapper: _ArrayMapper2.default };
         var compName = 'todoListView';
         var stateNodeName = 'todoApp';
 
-        var TodoList = (0, _ReactMLHoc2.default)(spec, actionLib, tagFactory, stateNodeName, compName);
+        var TodoApp = (0, _ReactMLHoc2.default)(spec, actionLib, tagFactory, stateNodeName, compName);
 
         var elem = _reactTestRenderer2.default.create(_react2.default.createElement(
             _reactRedux.Provider,
             { store: _store2.default },
-            _react2.default.createElement(TodoList, null)
+            _react2.default.createElement(TodoApp, null)
         ));
 
         var tree = elem.toJSON();

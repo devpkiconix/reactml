@@ -21,6 +21,7 @@ const render = (_deps) => (rootProps) => {
 
         pipeline = pipe(
             maybeParse,
+            // (node) => { console.log("normalzing component", node); return node; },
             normalizeNode,
             renderTree(propGetter, tagFactory)
         );

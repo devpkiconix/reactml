@@ -8,14 +8,6 @@ var _reactRedux = require('react-redux');
 
 var _ReactML = require('../ReactML');
 
-var _ArrayMapper = require('../ArrayMapper');
-
-var _ArrayMapper2 = _interopRequireDefault(_ArrayMapper);
-
-var _ReactMLHoc = require('../ReactMLHoc');
-
-var _ReactMLHoc2 = _interopRequireDefault(_ReactMLHoc);
-
 var _reactTestRenderer = require('react-test-renderer');
 
 var _reactTestRenderer2 = _interopRequireDefault(_reactTestRenderer);
@@ -24,14 +16,7 @@ var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
 
-var _functions = require('../../../modules/reactml/functions');
-
-var _functions2 = _interopRequireDefault(_functions);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var maybeParse = _functions2.default.maybeParse;
-
 
 var tagFactory = {};
 var lib = {};

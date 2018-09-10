@@ -48,15 +48,15 @@ export const ReactML = (props) => {
     const compProps = {
         tagFactory: props.tagFactory || defaultTagFactory,
         root: pathGet(viewNodePath, props),
-        // ...mapStateToProps,
         stateNodeName,
+        ...props,
     };
 
     // augment tag factory with components defined within the spec
     let comps = pathGet(['spec', 'components'])(props);
     Object.keys(comps).forEach(name => {
         if (name !== compName && !props.tagFactory[name]) {
-            props.tagFactory[name] = (props2 = {}) =>{
+            props.tagFactory[name] = (props2 = {}) => {
                 return (<ReactML
                     tagFactory={props.tagFactory}
                     stateNodeName={stateNodeName}
@@ -64,7 +64,7 @@ export const ReactML = (props) => {
                     component={name}
                     actionLib={props.actionLib}
                     {...props2}
-                    />);
+                />);
             }
         }
     });

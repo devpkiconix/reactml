@@ -6,13 +6,15 @@ const ReactMLArrayMapper = (props) => {
     if (!(over && as && component)) {
         return <div> Loading...</div>;
     }
-    const mapped = over.map((item, i) => {
+    const overJs = over.toJS();
+    const mapped = overJs.map((item, i) => {
         // debugger
         let newProps = {
-            ...props,
+            // ...props,
             key: i,
             [as]: item,
         };
+        // console.log("creating react element with props", newProps);
         return React.createElement(component, { ...newProps })
     });
     return <div>

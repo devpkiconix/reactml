@@ -1,19 +1,14 @@
 import React from 'react';
 import { Provider } from 'react-redux'
 import { ReactML } from '../ReactML';
-import ReactMLArrayMapper from '../ArrayMapper';
-import ReactMLHoc from '../ReactMLHoc';
 import renderer from 'react-test-renderer';
 import store from './store';
-import functions from '../../../modules/reactml/functions';
-
-const { maybeParse } = functions;
 
 const tagFactory = {};
 const lib = {};
 
 describe("Reactml rendering of nested components", () => {
-	it('auto-add to tag factory', () => {
+    it('auto-add to tag factory', () => {
         const spec = {
             state: {
                 stateNodeName: 'compstate1'
@@ -30,10 +25,10 @@ describe("Reactml rendering of nested components", () => {
                     }
                 },
                 LowLevelComp: {
-                	view: { tag: 'span', content: 'low' },
+                    view: { tag: 'span', content: 'low' },
                 },
                 AnotherLowLevelComp: {
-                	view: { tag: 'span', content: 'low too' },
+                    view: { tag: 'span', content: 'low too' },
                 },
             },
         };
@@ -48,5 +43,6 @@ describe("Reactml rendering of nested components", () => {
                     />
                 </Provider>)
             .toJSON();
-        expect(tree).toMatchSnapshot();	});
+        expect(tree).toMatchSnapshot();
+    });
 });

@@ -6,6 +6,9 @@ const childrenLens = R.lensProp('children');
 const sansProps = R.omit(['props', 'tag', 'content']);
 
 export const normalizeNode = (node) => {
+    if (!node) {
+        throw new Error('Cant normalize, node is undefined')
+    }
     if (node.content) {
         // ignore child nodes
         return R.set(childrenLens, [], node);

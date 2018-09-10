@@ -73,12 +73,11 @@ var ReactML = exports.ReactML = function ReactML(props) {
     var actionExtractor = function actionExtractor() {
         return props.actionLib;
     };
-    var compProps = {
+    var compProps = _extends({
         tagFactory: props.tagFactory || _materialUiTagFactory2.default,
         root: (0, _ramda.path)(viewNodePath, props),
-
         stateNodeName: stateNodeName
-    };
+    }, props);
 
     var comps = (0, _ramda.path)(['spec', 'components'])(props);
     Object.keys(comps).forEach(function (name) {

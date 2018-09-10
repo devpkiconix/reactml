@@ -21,7 +21,7 @@ const initial = {
     ]
 };
 
-describe("Basic reactml rendering", () => {
+describe("Uninterpreted props", () => {
     beforeEach(() => {
         return store.dispatch({
             type: 'REACTML_INIT',
@@ -30,7 +30,7 @@ describe("Basic reactml rendering", () => {
         });
     });
 
-    it("array rendering", () => {
+    it("array rendering with uninterpreted props", () => {
         const spec = {
             state: {
                 stateNodeName: 'todoApp',
@@ -41,6 +41,24 @@ describe("Basic reactml rendering", () => {
                 // state has already been initialized.
             },
             components: {
+                Todo: {
+                    view: {
+                        tag: 'div',
+                        children: [
+                            {
+                                tag: 'input',
+                                props: {
+                                    type: 'checkbox',
+                                    value: '.todo.done',
+                                },
+                            },
+                            {
+                                tag: 'span',
+                                content: '.todo.label',
+                            }
+                        ]
+                    },
+                },
                 todoListView: {
                     'state-to-props': {
                         todoList: 'todoList'
@@ -65,28 +83,19 @@ describe("Basic reactml rendering", () => {
 
             }
         };
-        const Todo = ({ todo }) =>
-            <div className="checkbox">
-                <label>
-                    <input type="checkbox" value={todo.label}
-                        checked={todo.done} />
-                    {todo.label}
-                </label>
-            </div>;
-
         const actionLib = {};
-        const tagFactory = { ReactMLArrayMapper, Todo, };
+        const tagFactory = { ReactMLArrayMapper, };
         const compName = 'todoListView';
         const stateNodeName = 'todoApp';
 
-        const TodoList = ReactMLHoc(spec,
+        const TodoApp = ReactMLHoc(spec,
             actionLib, tagFactory,
             stateNodeName, compName);
 
         const elem = renderer
             .create(
                 <Provider store={store}>
-                    <TodoList />
+                    <TodoApp />
                 </Provider>);
 
         const tree = elem.toJSON();

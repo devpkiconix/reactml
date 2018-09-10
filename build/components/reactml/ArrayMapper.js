@@ -26,10 +26,12 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
             ' Loading...'
         );
     }
-    var mapped = over.map(function (item, i) {
-        var newProps = _extends({}, props, _defineProperty({
+    var overJs = over.toJS();
+    var mapped = overJs.map(function (item, i) {
+        var newProps = _defineProperty({
             key: i
-        }, as, item));
+        }, as, item);
+
         return _react2.default.createElement(component, _extends({}, newProps));
     });
     return _react2.default.createElement(
