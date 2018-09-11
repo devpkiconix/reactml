@@ -105,8 +105,12 @@ const basicRenderReact = (tagGetter, propGetter, mappedProps, mappedChildren, no
     if (isString(node)) {
         return propGetter(node);
     }
+    let reactChildren = mappedChildren;
+    if (mappedChildren && mappedChildren.length === 0) {
+        reactChildren = null;
+    }
     return React.createElement(
-        tagGetter(node), mappedProps, mappedChildren
+        tagGetter(node), mappedProps, reactChildren,
     );
 };
 

@@ -114,7 +114,11 @@ var basicRenderReact = function basicRenderReact(tagGetter, propGetter, mappedPr
     if ((0, _ramdaAdjunct.isString)(node)) {
         return propGetter(node);
     }
-    return _react2.default.createElement(tagGetter(node), mappedProps, mappedChildren);
+    var reactChildren = mappedChildren;
+    if (mappedChildren && mappedChildren.length === 0) {
+        reactChildren = null;
+    }
+    return _react2.default.createElement(tagGetter(node), mappedProps, reactChildren);
 };
 
 var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mappedProps, mappedChildren, node) {
