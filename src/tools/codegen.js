@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, watchFile } from 'fs';
 import yamlLib from 'js-yaml';
 import { isString } from 'ramda-adjunct';
 const R = require('ramda');
@@ -25,7 +25,8 @@ const prettify = (code) =>
 const componentsLens = R.lensProp('components');
 
 const readFile = (fn) => readFileSync(fn);
-const parse = (x) => yamlLib.safeLoad(x);
+const parseYaml = (x) => yamlLib.safeLoad(x);
+const parseJson = (x) => JSON.parse(x);
 const toString = (x) => yamlLib.safeDump(x, 2);
 
 const genTail = (x) => x;
@@ -126,7 +127,7 @@ const { ${foreignTags} } = TagFactory;
         resolve(foreignTagCode + '\n' + localTagCode);
     });
 
-const ejsGen = (fileName, context) => new Promise((resolve, reject) =>
+const ejsGen = fileName => context => new Promise((resolve, reject) =>
     ejs.renderFile(fileName, context, (err, output) =>
         (err) ? reject(err) : resolve(output)));
 
@@ -164,6 +165,8 @@ ${schildren}
 
     return mainCode;
 }
+
+const reactViewCodegen = ejsGen(VIEW_TEMPLATE_FILENAME);
 
 const genComp = (writer) => (comp, compName, oComps) => {
     const propGetter = (val) => {
@@ -208,7 +211,7 @@ const genComp = (writer) => (comp, compName, oComps) => {
             tagImport, compName, reactComponentBody,
             mapStateToProps, mapActionsToProps,
         };
-            return ejsGen(VIEW_TEMPLATE_FILENAME, context)
+        return reactViewCodegen(context)
             .then(prettyWrite(writer(context.compName)));
     });
 };
@@ -228,27 +231,44 @@ const generator = (writer) => R.compose(
     genHeader,
     BEGIN);
 
-
-const processor = (writer) => R.compose(
+const processParsed = (writer) => R.compose(
     generator(writer),
     normalizeChildren,
+    BEGIN);
+
+const processor = (parse, writer) => R.compose(
+    processParsed(writer),
     parse,
     readFile,
     BEGIN);
 
-
 const writeComponent = outputDir => compName =>
     write(`${outputDir}/${compName}.jsx`);
 
-export const codegenSeparate = (ymlFile, outputDir = "./gen") =>
-    processor(writeComponent(outputDir))(ymlFile);
+export
+const codegenYaml = (srcFileName, outputDir = "./gen") =>
+    processor(parseYaml, writeComponent(outputDir))(srcFileName);
 
-export const codegenAll = (ymlFile, outputDir = "./gen") => {
-    let allCode = '';
-    const writer = (compName) => (code) =>
-        (allCode += `// ${compName}\n${code}`);
-    processor(writer)(ymlFile)
-        .then(( ) => writeFileSync(`${outputDir}/all.jsx`, allCode));
+export
+const codegenJson = (srcFileName, outputDir = "./gen") =>
+    processor(parseJson, writeComponent(outputDir))(srcFileName);
+
+export
+const codegenJs = (spec, outputDir = "./gen") =>
+    processParsed(writeComponent(outputDir))(spec);
+
+export
+const codegenJsWebbpack = function(yaml) {
+    const writer = (compName) => (content) => {
+        this.emitFile(`${compName}.jsx`, content);
+    };
+    processParsed(writer)(spec);
+    return;
 }
 
-export default codegenSeparate;
+export const codegenYamlWatch = (srcFileName, outputDir = "./gen") =>
+    watchFile(srcFileName, () => {
+        console.log(`${srcFileName} changed`);
+        processor(parseYaml, writeComponent(outputDir))(srcFileName);
+    });
+

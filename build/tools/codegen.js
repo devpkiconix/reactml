@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.codegenJsWebbpack = exports.codegenJs = exports.codegenJson = exports.codegenYaml = undefined;
 
 var _fs = require('fs');
 
@@ -52,8 +53,11 @@ var componentsLens = R.lensProp('components');
 var readFile = function readFile(fn) {
     return (0, _fs.readFileSync)(fn);
 };
-var parse = function parse(x) {
+var parseYaml = function parseYaml(x) {
     return _jsYaml2.default.safeLoad(x);
+};
+var parseJson = function parseJson(x) {
+    return JSON.parse(x);
 };
 var toString = function toString(x) {
     return _jsYaml2.default.safeDump(x, 2);
@@ -67,6 +71,16 @@ var genHeader = function genHeader(x) {
 };
 
 var TRIPLE_DOT = '...';
+
+var write = function write(fileName) {
+    return function (content) {
+        return (0, _fs.writeFileSync)(fileName, content);
+    };
+};
+
+var prettyWrite = function prettyWrite(writer) {
+    return R.compose(writer, prettify);
+};
 
 var reduce2TagList = function reduce2TagList(node) {
     var list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -91,51 +105,58 @@ var reduceState2Props = function reduceState2Props(s2p) {
     }, '');
 };
 
-var findActions = function findActions(node) {
-    var myList = Object.keys(node.props || {}).map(function (k) {
-        return node.props[k];
-    }).filter(_ramdaAdjunct.isString).filter(function (name) {
-        return name.startsWith('..') && !name.startsWith(TRIPLE_DOT);
-    }).map(function (name) {
-        return name.substr(2);
-    });
+var defaultToEmptyObj = R.defaultTo({});
+var defaultToEmptyArr = R.defaultTo([]);
 
-    var childLists = (node.children || []).map(function (child) {
-        return findActions(child);
-    });
+var node2ActionProps = R.compose(R.map(function (name) {
+    return name.substr(2);
+}), R.filter(function (name) {
+    return name.startsWith('..') && !name.startsWith(TRIPLE_DOT);
+}), R.filter(_ramdaAdjunct.isString), R.values, defaultToEmptyObj(R.prop('props')), BEGIN);
 
-    return myList.concat(R.flatten(childLists));
+var findChildActions = R.compose(R.flatten, R.map(function (child) {
+    return findActions(child);
+}), defaultToEmptyArr(R.prop('children')), BEGIN);
+
+var arrOfOne = R.repeat(R.__, 1);
+
+var findActions = R.compose(R.flatten, R.ap([node2ActionProps, findChildActions]), arrOfOne, BEGIN);
+
+var comp2tags = R.compose(R.keys, R.omit(stdTags), reduce2TagList, R.prop('view'), BEGIN);
+
+var sort = R.sort(function (a, b) {
+    return a > b;
+});
+
+var comp2foreignTags = function comp2foreignTags(oComps) {
+    return R.compose(R.join(','), sort, R.filter(function (x) {
+        return !oComps[x];
+    }), comp2tags, BEGIN);
+};
+
+var comp2localTagCode = function comp2localTagCode(oComps) {
+    return R.compose(R.join('\n'), R.map(function (tag) {
+        return 'import ' + tag + ' from \'./' + tag + '\';';
+    }), sort, R.filter(function (x) {
+        return !!oComps[x];
+    }), comp2tags, BEGIN);
 };
 
 var genTagImport = function genTagImport(comp, compName, oComps) {
     return new Promise(function (resolve, reject) {
-        var tagList = reduce2TagList(comp.view);
-        var tagNames = R.keys(R.omit(stdTags, tagList));
 
-        var foreignTags = tagNames.filter(function (x) {
-            return !oComps[x];
-        }).sort();
-        var localTags = tagNames.filter(function (x) {
-            return !!oComps[x];
-        }).sort();
+        var foreignTags = comp2foreignTags(oComps)(comp);
+        var foreignTagCode = foreignTags.length ? '\nimport TagFactory from \'../tag-factory\';\nconst { ' + foreignTags + ' } = TagFactory;\n        ' : '';
 
-        var foreignTagCode = foreignTags.length ? '\nimport TagFactory from \'../tag-factory\';\nconst { ' + foreignTags.join(',') + ' } = TagFactory;\n        ' : '';
-
-        var localTagCode = localTags.map(function (tag) {
-            return 'import ' + tag + ' from \'./' + tag + '\';';
-        }).join('\n');
+        var localTagCode = comp2localTagCode(oComps)(comp);
         resolve(foreignTagCode + '\n' + localTagCode);
     });
 };
 
 var ejsGen = function ejsGen(fileName, context) {
     return new Promise(function (resolve, reject) {
-        ejs.renderFile(fileName, context, function (err, output) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(output);
-            }
+        return ejs.renderFile(fileName, context, function (err, output) {
+            return err ? reject(err) : resolve(output);
         });
     });
 };
@@ -145,7 +166,6 @@ var codegenTree = function codegenTree(propGetter, _) {
         var tagGetter = function tagGetter(node) {
             return node.tag;
         };
-
         return traverse(basicRenderCodegen, tagGetter, propGetter)(tree);
     };
 };
@@ -178,7 +198,7 @@ var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mapp
     return mainCode;
 };
 
-var genComp = function genComp(outputDir) {
+var genComp = function genComp(writer) {
     return function (comp, compName, oComps) {
         var propGetter = function propGetter(val) {
             if ((0, _ramdaAdjunct.isString)(val)) {
@@ -198,10 +218,15 @@ var genComp = function genComp(outputDir) {
             return '{' + val + '}';
         };
         var reactComponentBody = codegenTree(propGetter)(comp.view);
-        var mapStateToProps = '{}';
+        var mapStateToProps = null;
+        var mapStateToPropsList = '';
         if (comp['state-to-props']) {
-            mapStateToProps = '{' + reduceState2Props(comp['state-to-props']) + '}';
+            mapStateToPropsList = '' + reduceState2Props(comp['state-to-props']);
         }
+        if (mapStateToPropsList.length) {
+            mapStateToProps = '{' + mapStateToPropsList + '}';
+        }
+
         var actionArr = findActions(comp.view).sort();
         var mapActionsToProps = 'null';
         if (actionArr.length) {
@@ -211,34 +236,61 @@ var genComp = function genComp(outputDir) {
         }
         return genTagImport(comp, compName, oComps).then(function (tagImport) {
             var context = {
-                tagImport: tagImport, compName: compName, reactComponentBody: reactComponentBody, mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps
+                tagImport: tagImport, compName: compName, reactComponentBody: reactComponentBody,
+                mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps
             };
-            return ejsGen(VIEW_TEMPLATE_FILENAME, context).then(function (code) {
-                return prettify(code);
-            }).then(function (code) {
-                return (0, _fs.writeFileSync)(outputDir + '/' + compName + '.jsx', code);
-            });
+            return ejsGen(VIEW_TEMPLATE_FILENAME, context).then(prettyWrite(writer(context.compName)));
         });
     };
 };
 
-var generateComps = function generateComps(outputDir) {
+var generateComps = function generateComps(writer) {
     return R.compose(function (proms) {
         return Promise.all(proms);
-    }, R.values, R.mapObjIndexed(genComp(outputDir)), R.view(componentsLens), BEGIN);
+    }, R.values, R.mapObjIndexed(genComp(writer)), R.view(componentsLens), BEGIN);
 };
 
-var generator = function generator(outputDir) {
-    return R.compose(genTail, generateComps(outputDir), genHeader, BEGIN);
+var generator = function generator(writer) {
+    return R.compose(genTail, generateComps(writer), genHeader, BEGIN);
 };
 
-var processor = function processor(outputDir) {
-    return R.compose(generator(outputDir), _normalize.normalizeChildren, parse, readFile, function (x) {
-        return console.log(x), x;
-    }, BEGIN);
+var processParsed = function processParsed(writer) {
+    return R.compose(generator(writer), _normalize.normalizeChildren, BEGIN);
 };
 
-exports.default = function (ymlFile) {
+var processor = function processor(parse, writer) {
+    return R.compose(processParsed(writer), parse, readFile, BEGIN);
+};
+
+var writeComponent = function writeComponent(outputDir) {
+    return function (compName) {
+        return write(outputDir + '/' + compName + '.jsx');
+    };
+};
+
+var codegenYaml = exports.codegenYaml = function codegenYaml(srcFileName) {
     var outputDir = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "./gen";
-    return processor(outputDir)(ymlFile);
+    return processor(parseYaml, writeComponent(outputDir))(srcFileName);
+};
+
+var codegenJson = exports.codegenJson = function codegenJson(srcFileName) {
+    var outputDir = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "./gen";
+    return processor(parseJson, writeComponent(outputDir))(srcFileName);
+};
+
+var codegenJs = exports.codegenJs = function codegenJs(spec) {
+    var outputDir = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "./gen";
+    return processParsed(writeComponent(outputDir))(spec);
+};
+
+var codegenJsWebbpack = exports.codegenJsWebbpack = function codegenJsWebbpack(yaml) {
+    var _this = this;
+
+    var writer = function writer(compName) {
+        return function (content) {
+            _this.emitFile(compName + '.jsx', content);
+        };
+    };
+    processParsed(writer)(spec);
+    return;
 };
