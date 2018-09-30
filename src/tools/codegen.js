@@ -31,15 +31,25 @@ const toString = (x) => yamlLib.safeDump(x, 2);
 const genTail = (x) => x;
 const genHeader = (x) => x;
 
+const TRIPLE_DOT = '...';
+
 const reduce2TagList = (node, list = {}) => {
-    return node.children.reduce((list, child) => {
+        const tagsInProps = R.keys((node.props||{})).forEach(name => {
+            const val = node.props[name];
+            if(isString(val) && val.startsWith(TRIPLE_DOT)) {
+                const tag = val.replace(TRIPLE_DOT,'');
+                list[tag] = tag;
+            }
+        });
+        return node.children.reduce((list, child) => {
         list[child.tag] = child.tag;
+
         return reduce2TagList(child, list);
     }, list)
 };
 
 const reduceState2Props = (s2p) =>
-    Object.keys(s2p).reduce((code, key) =>
+    Object.keys(s2p).sort().reduce((code, key) =>
         code + `${key}: compState.getIn(${JSON.stringify(s2p[key].split('.'))}),`
         , '');
 
@@ -47,7 +57,7 @@ const findActions = (node) => {
     const myList = Object.keys(node.props || {})
         .map(k => node.props[k])
         .filter(isString)
-        .filter(name => name.startsWith('..') && !name.startsWith('...'))
+        .filter(name => name.startsWith('..') && !name.startsWith(TRIPLE_DOT))
         .map(name => name.substr(2));
     // console.log('myList', myList);
     // console.log((node.children || []).map(child => child.props));
@@ -57,15 +67,23 @@ const findActions = (node) => {
     return myList.concat(R.flatten(childLists));
 };
 
-const genTagImport = (comp) =>
+const genTagImport = (comp, compName, oComps) =>
     new Promise((resolve, reject) => {
-        let tagList = reduce2TagList(comp.view);
-        let tagNames = R.keys(R.omit(stdTags, tagList)).join(',');
-        resolve(tagNames.length ?
-            `
-import TagFactory from './tag-factory';
-const { ${tagNames} } = TagFactory;
-        ` : '');
+        const tagList = reduce2TagList(comp.view);
+        const tagNames = R.keys(R.omit(stdTags, tagList));
+
+        const foreignTags = tagNames.filter(x => !oComps[x]).sort();
+        const localTags = tagNames.filter(x => !!oComps[x]).sort();
+
+        const foreignTagCode = foreignTags.length ? `
+import TagFactory from '../tag-factory';
+const { ${foreignTags.join(',')} } = TagFactory;
+        ` : '';
+
+        const localTagCode = localTags
+            .map(tag => `import ${tag} from './${tag}';`)
+            .join('\n');
+        resolve(foreignTagCode + '\n' + localTagCode);
     });
 
 const ejsGen = (fileName, context) => new Promise((resolve, reject) => {
@@ -85,6 +103,8 @@ const codegenTree = (propGetter, _) => (tree) => {
     return traverse(basicRenderCodegen, tagGetter, propGetter)(tree);
 }
 
+const removeCond = R.omit(['$when']);
+
 // mappedChildren is children already rendered
 const basicRenderCodegen = (tagGetter, propGetter, mappedProps, mappedChildren, node) => {
     if (isString(node)) {
@@ -93,23 +113,42 @@ const basicRenderCodegen = (tagGetter, propGetter, mappedProps, mappedChildren, 
     let tag = tagGetter(node);
     let sprops = '';
     if (mappedProps) {
-        sprops = R.mapObjIndexed((v, k) => k == 'key' ? '' : `${k}=${v}`, mappedProps)
+        sprops = R.mapObjIndexed((v, k) => k == 'key' ? '' : `${k}=${v}`, removeCond(mappedProps))
         sprops = R.values(sprops).join(' ');
     }
     let schildren = (mappedChildren || []).join('\n');
-    return `<${tag} ${sprops}>
+
+    const mainCode = `<${tag} ${sprops}>
 ${schildren}
 </${tag}>`;
+
+    if (mappedProps.$when ) {
+        const $when = node.props.$when;
+        const cond = `(${node.props.$when})`;
+        const conditionalCode = `{${cond} ? (${mainCode}) : ''}`;
+        return conditionalCode;
+    }
+
+
+    return mainCode;
 }
 
-const genComp = (outputDir) => (comp, compName) => {
+const genComp = (outputDir) => (comp, compName, oComps) => {
     const propGetter = (val) => {
-        if (isString(val) &&
-            (val.startsWith('.'))) {
-            val = val
-                .replace(/^\.\.\./, 'TagFactory.')
-                .replace(/^\.\./, 'props.')
-                .replace(/^\./, 'props.');
+        if (isString(val)) {
+            if (val.startsWith(TRIPLE_DOT)) {
+                val = val.replace(/^\.\.\./, '');
+                if (!oComps[val]) {
+                    val = 'TagFactory.' + val;
+                }
+            } else if (val.startsWith('.')) {
+                val = val
+                    .replace(/^\.\.\./, 'TagFactory.')
+                    .replace(/^\.\./, 'props.')
+                    .replace(/^\./, 'props.');
+            } else {
+                val = JSON.stringify(val);
+            }
         } else {
             val = JSON.stringify(val);
         }
@@ -120,14 +159,14 @@ const genComp = (outputDir) => (comp, compName) => {
     if (comp['state-to-props']) {
         mapStateToProps = `{${reduceState2Props(comp['state-to-props'])}}`
     }
-    const actionArr = findActions(comp.view);
+    const actionArr = findActions(comp.view).sort();
     let mapActionsToProps = 'null';
     if (actionArr.length) {
         mapActionsToProps = `{
                 ${actionArr.map(action => `${action}: lib.${action}`).join(',')}
                 }`;
     }
-    return genTagImport(comp).then(tagImport => {
+    return genTagImport(comp, compName, oComps).then(tagImport => {
         const context = {
             tagImport, compName, reactComponentBody, mapStateToProps, mapActionsToProps,
         };

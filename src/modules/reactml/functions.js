@@ -2,7 +2,7 @@ import React from 'react';
 import {
     __, curry, path as pathGet, map as RMap, omit, keys
 } from 'ramda';
-import { isString, isObject } from 'ramda-adjunct';
+import { isString, isObject, isFunction } from 'ramda-adjunct';
 
 import { normalizeNode } from './normalize';
 
@@ -114,17 +114,6 @@ const basicRenderReact = (tagGetter, propGetter, mappedProps, mappedChildren, no
     );
 };
 
-const basicRenderCodegen = (tagGetter, propGetter, mappedProps, mappedChildren, node) => {
-    let tag = tagGetter(node);
-    if (isString(node)) {
-        return propGetter(node);
-    }
-    return `
-<${tag} ${propsStr}>
-${childrenStr}
-</${tag}>
-    `;
-}
 
 // Exported functions for reuse and/or testing
 export default {

@@ -121,14 +121,6 @@ var basicRenderReact = function basicRenderReact(tagGetter, propGetter, mappedPr
     return _react2.default.createElement(tagGetter(node), mappedProps, reactChildren);
 };
 
-var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mappedProps, mappedChildren, node) {
-    var tag = tagGetter(node);
-    if ((0, _ramdaAdjunct.isString)(node)) {
-        return propGetter(node);
-    }
-    return '\n<' + tag + ' ' + propsStr + '>\n' + childrenStr + '\n</' + tag + '>\n    ';
-};
-
 exports.default = {
     isLeaf: isLeaf,
     maybeParse: maybeParse, mapNode2Tag: mapNode2Tag, mapPropName2Value: mapPropName2Value, traverse: traverse,

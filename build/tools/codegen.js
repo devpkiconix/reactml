@@ -66,17 +66,27 @@ var genHeader = function genHeader(x) {
     return x;
 };
 
+var TRIPLE_DOT = '...';
+
 var reduce2TagList = function reduce2TagList(node) {
     var list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+    var tagsInProps = R.keys(node.props || {}).forEach(function (name) {
+        var val = node.props[name];
+        if ((0, _ramdaAdjunct.isString)(val) && val.startsWith(TRIPLE_DOT)) {
+            var tag = val.replace(TRIPLE_DOT, '');
+            list[tag] = tag;
+        }
+    });
     return node.children.reduce(function (list, child) {
         list[child.tag] = child.tag;
+
         return reduce2TagList(child, list);
     }, list);
 };
 
 var reduceState2Props = function reduceState2Props(s2p) {
-    return Object.keys(s2p).reduce(function (code, key) {
+    return Object.keys(s2p).sort().reduce(function (code, key) {
         return code + (key + ': compState.getIn(' + JSON.stringify(s2p[key].split('.')) + '),');
     }, '');
 };
@@ -85,7 +95,7 @@ var findActions = function findActions(node) {
     var myList = Object.keys(node.props || {}).map(function (k) {
         return node.props[k];
     }).filter(_ramdaAdjunct.isString).filter(function (name) {
-        return name.startsWith('..') && !name.startsWith('...');
+        return name.startsWith('..') && !name.startsWith(TRIPLE_DOT);
     }).map(function (name) {
         return name.substr(2);
     });
@@ -97,11 +107,24 @@ var findActions = function findActions(node) {
     return myList.concat(R.flatten(childLists));
 };
 
-var genTagImport = function genTagImport(comp) {
+var genTagImport = function genTagImport(comp, compName, oComps) {
     return new Promise(function (resolve, reject) {
         var tagList = reduce2TagList(comp.view);
-        var tagNames = R.keys(R.omit(stdTags, tagList)).join(',');
-        resolve(tagNames.length ? '\nimport TagFactory from \'./tag-factory\';\nconst { ' + tagNames + ' } = TagFactory;\n        ' : '');
+        var tagNames = R.keys(R.omit(stdTags, tagList));
+
+        var foreignTags = tagNames.filter(function (x) {
+            return !oComps[x];
+        }).sort();
+        var localTags = tagNames.filter(function (x) {
+            return !!oComps[x];
+        }).sort();
+
+        var foreignTagCode = foreignTags.length ? '\nimport TagFactory from \'../tag-factory\';\nconst { ' + foreignTags.join(',') + ' } = TagFactory;\n        ' : '';
+
+        var localTagCode = localTags.map(function (tag) {
+            return 'import ' + tag + ' from \'./' + tag + '\';';
+        }).join('\n');
+        resolve(foreignTagCode + '\n' + localTagCode);
     });
 };
 
@@ -127,6 +150,8 @@ var codegenTree = function codegenTree(propGetter, _) {
     };
 };
 
+var removeCond = R.omit(['$when']);
+
 var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mappedProps, mappedChildren, node) {
     if ((0, _ramdaAdjunct.isString)(node)) {
         return propGetter(node);
@@ -136,18 +161,37 @@ var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mapp
     if (mappedProps) {
         sprops = R.mapObjIndexed(function (v, k) {
             return k == 'key' ? '' : k + '=' + v;
-        }, mappedProps);
+        }, removeCond(mappedProps));
         sprops = R.values(sprops).join(' ');
     }
     var schildren = (mappedChildren || []).join('\n');
-    return '<' + tag + ' ' + sprops + '>\n' + schildren + '\n</' + tag + '>';
+
+    var mainCode = '<' + tag + ' ' + sprops + '>\n' + schildren + '\n</' + tag + '>';
+
+    if (mappedProps.$when) {
+        var $when = node.props.$when;
+        var cond = '(' + node.props.$when + ')';
+        var conditionalCode = '{' + cond + ' ? (' + mainCode + ') : \'\'}';
+        return conditionalCode;
+    }
+
+    return mainCode;
 };
 
 var genComp = function genComp(outputDir) {
-    return function (comp, compName) {
+    return function (comp, compName, oComps) {
         var propGetter = function propGetter(val) {
-            if ((0, _ramdaAdjunct.isString)(val) && val.startsWith('.')) {
-                val = val.replace(/^\.\.\./, 'TagFactory.').replace(/^\.\./, 'props.').replace(/^\./, 'props.');
+            if ((0, _ramdaAdjunct.isString)(val)) {
+                if (val.startsWith(TRIPLE_DOT)) {
+                    val = val.replace(/^\.\.\./, '');
+                    if (!oComps[val]) {
+                        val = 'TagFactory.' + val;
+                    }
+                } else if (val.startsWith('.')) {
+                    val = val.replace(/^\.\.\./, 'TagFactory.').replace(/^\.\./, 'props.').replace(/^\./, 'props.');
+                } else {
+                    val = JSON.stringify(val);
+                }
             } else {
                 val = JSON.stringify(val);
             }
@@ -158,14 +202,14 @@ var genComp = function genComp(outputDir) {
         if (comp['state-to-props']) {
             mapStateToProps = '{' + reduceState2Props(comp['state-to-props']) + '}';
         }
-        var actionArr = findActions(comp.view);
+        var actionArr = findActions(comp.view).sort();
         var mapActionsToProps = 'null';
         if (actionArr.length) {
             mapActionsToProps = '{\n                ' + actionArr.map(function (action) {
                 return action + ': lib.' + action;
             }).join(',') + '\n                }';
         }
-        return genTagImport(comp).then(function (tagImport) {
+        return genTagImport(comp, compName, oComps).then(function (tagImport) {
             var context = {
                 tagImport: tagImport, compName: compName, reactComponentBody: reactComponentBody, mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps
             };
