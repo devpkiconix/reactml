@@ -33,6 +33,10 @@ const genHeader = (x) => x;
 
 const TRIPLE_DOT = '...';
 
+const write = (fileName) => (content) => writeFileSync(fileName, content);
+
+const prettyWrite = (writer) => R.compose(writer, prettify);
+
 const reduce2TagList = (node, list = {}) => {
         const tagsInProps = R.keys((node.props||{})).forEach(name => {
             const val = node.props[name];
@@ -53,53 +57,82 @@ const reduceState2Props = (s2p) =>
         code + `${key}: compState.getIn(${JSON.stringify(s2p[key].split('.'))}),`
         , '');
 
-const findActions = (node) => {
-    const myList = Object.keys(node.props || {})
-        .map(k => node.props[k])
-        .filter(isString)
-        .filter(name => name.startsWith('..') && !name.startsWith(TRIPLE_DOT))
-        .map(name => name.substr(2));
-    // console.log('myList', myList);
-    // console.log((node.children || []).map(child => child.props));
-    const childLists =
-        (node.children || []).map(child => findActions(child));
-    // console.log('child lists:', R.flatten(childLists));
-    return myList.concat(R.flatten(childLists));
-};
+
+const defaultToEmptyObj = R.defaultTo({});
+const defaultToEmptyArr = R.defaultTo([]);
+
+const node2ActionProps = R.compose(
+    R.map(name => name.substr(2)),
+    R.filter(name =>
+        name.startsWith('..') && !name.startsWith(TRIPLE_DOT)),
+    R.filter(isString), // keep strings only
+    R.values, // values from object
+    defaultToEmptyObj(R.prop('props')), // node.props || {}
+    BEGIN
+);
+
+const findChildActions = R.compose(
+    R.flatten,
+    R.map(child => findActions(child)),
+    defaultToEmptyArr(R.prop('children')), // node.children || []
+    BEGIN
+);
+
+const arrOfOne = R.repeat(R.__, 1);
+
+// Returns actions in a node
+const findActions = R.compose(
+    R.flatten,
+    R.ap([node2ActionProps, findChildActions]),
+    arrOfOne, // array to use for operating with 'ap'
+    BEGIN
+);
+
+// Extracts tags used in the component
+const comp2tags = R.compose(
+    R.keys,
+    R.omit(stdTags),
+    reduce2TagList,
+    R.prop('view'),
+    BEGIN);
+
+const sort = R.sort((a, b) => (a > b));
+
+const comp2foreignTags = (oComps) => R.compose(
+    R.join(','),
+    sort,
+    R.filter(x => !oComps[x]),
+    comp2tags,
+    BEGIN);
+
+const comp2localTagCode = (oComps) => R.compose(
+    R.join('\n'),
+    R.map(tag => `import ${tag} from './${tag}';`),
+    sort,
+    R.filter(x => !!oComps[x]),
+    comp2tags,
+    BEGIN);
 
 const genTagImport = (comp, compName, oComps) =>
     new Promise((resolve, reject) => {
-        const tagList = reduce2TagList(comp.view);
-        const tagNames = R.keys(R.omit(stdTags, tagList));
 
-        const foreignTags = tagNames.filter(x => !oComps[x]).sort();
-        const localTags = tagNames.filter(x => !!oComps[x]).sort();
-
+        const foreignTags = comp2foreignTags(oComps)(comp);
         const foreignTagCode = foreignTags.length ? `
 import TagFactory from '../tag-factory';
-const { ${foreignTags.join(',')} } = TagFactory;
+const { ${foreignTags} } = TagFactory;
         ` : '';
 
-        const localTagCode = localTags
-            .map(tag => `import ${tag} from './${tag}';`)
-            .join('\n');
+        const localTagCode = comp2localTagCode(oComps)(comp);
         resolve(foreignTagCode + '\n' + localTagCode);
     });
 
-const ejsGen = (fileName, context) => new Promise((resolve, reject) => {
-    ejs.renderFile(fileName, context, (err, output) => {
-        if (err) {
-            reject(err);
-        } else {
-            resolve(output);
-        }
-    })
-});
+const ejsGen = (fileName, context) => new Promise((resolve, reject) =>
+    ejs.renderFile(fileName, context, (err, output) =>
+        (err) ? reject(err) : resolve(output)));
 
 
 const codegenTree = (propGetter, _) => (tree) => {
     const tagGetter = (node) => node.tag;
-
     return traverse(basicRenderCodegen, tagGetter, propGetter)(tree);
 }
 
@@ -129,11 +162,10 @@ ${schildren}
         return conditionalCode;
     }
 
-
     return mainCode;
 }
 
-const genComp = (outputDir) => (comp, compName, oComps) => {
+const genComp = (writer) => (comp, compName, oComps) => {
     const propGetter = (val) => {
         if (isString(val)) {
             if (val.startsWith(TRIPLE_DOT)) {
@@ -155,10 +187,15 @@ const genComp = (outputDir) => (comp, compName, oComps) => {
         return `{${val}}`;
     };
     let reactComponentBody = codegenTree(propGetter)(comp.view);
-    let mapStateToProps = `{}`;
+    let mapStateToProps = null;
+    let mapStateToPropsList = '';
     if (comp['state-to-props']) {
-        mapStateToProps = `{${reduceState2Props(comp['state-to-props'])}}`
+         mapStateToPropsList = `${reduceState2Props(comp['state-to-props'])}`;
     }
+    if (mapStateToPropsList.length) {
+        mapStateToProps = `{${mapStateToPropsList}}`;
+    }
+
     const actionArr = findActions(comp.view).sort();
     let mapActionsToProps = 'null';
     if (actionArr.length) {
@@ -168,38 +205,50 @@ const genComp = (outputDir) => (comp, compName, oComps) => {
     }
     return genTagImport(comp, compName, oComps).then(tagImport => {
         const context = {
-            tagImport, compName, reactComponentBody, mapStateToProps, mapActionsToProps,
+            tagImport, compName, reactComponentBody,
+            mapStateToProps, mapActionsToProps,
         };
-        return ejsGen(VIEW_TEMPLATE_FILENAME, context)
-            .then(code => prettify(code))
-            .then(code => writeFileSync(`${outputDir}/${compName}.jsx`, code));
+            return ejsGen(VIEW_TEMPLATE_FILENAME, context)
+            .then(prettyWrite(writer(context.compName)));
     });
-}
+};
 
-const generateComps = (outputDir) => R.compose(
+
+const generateComps = (writer) => R.compose(
     (proms) => Promise.all(proms),
     R.values,
-    R.mapObjIndexed(genComp(outputDir)),
+    R.mapObjIndexed(genComp(writer)),
     R.view(componentsLens),
     // dbgDump,
     BEGIN);
 
-const generator = (outputDir) => R.compose(
+const generator = (writer) => R.compose(
     genTail,
-    generateComps(outputDir),
+    generateComps(writer),
     genHeader,
     BEGIN);
 
 
-const processor = (outputDir) => R.compose(
-    generator(outputDir),
-    // toString,
+const processor = (writer) => R.compose(
+    generator(writer),
     normalizeChildren,
     parse,
     readFile,
-    (x) => (console.log(x), x),
     BEGIN);
 
-export default (ymlFile, outputDir = "./gen") =>
-    processor(outputDir)(ymlFile);
 
+const writeComponent = outputDir => compName =>
+    write(`${outputDir}/${compName}.jsx`);
+
+export const codegenSeparate = (ymlFile, outputDir = "./gen") =>
+    processor(writeComponent(outputDir))(ymlFile);
+
+export const codegenAll = (ymlFile, outputDir = "./gen") => {
+    let allCode = '';
+    const writer = (compName) => (code) =>
+        (allCode += `// ${compName}\n${code}`);
+    processor(writer)(ymlFile)
+        .then(( ) => writeFileSync(`${outputDir}/all.jsx`, allCode));
+}
+
+export default codegenSeparate;
