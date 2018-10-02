@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.ReactML = undefined;
+exports.ReactML = exports.ReactMLElem = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -25,13 +25,11 @@ var _render = require('./render');
 
 var _render2 = _interopRequireDefault(_render);
 
-var _materialUiTagFactory = require('./materialUiTagFactory');
-
-var _materialUiTagFactory2 = _interopRequireDefault(_materialUiTagFactory);
-
 var _validate = require('../../modules/reactml/validate');
 
 var _validate2 = _interopRequireDefault(_validate);
+
+var _normalize = require('../../modules/reactml/normalize');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44,9 +42,7 @@ var connect = _dependencies2.default.connect,
 var defaultToEmpty = (0, _ramda.defaultTo)({});
 
 var state2PropsMaker = function state2PropsMaker(compName, props) {
-    if (!props.spec) {
-        debugger;
-    }
+
     var state2propsPath = ['spec', 'components', compName, 'state-to-props'];
     var stateNodeName = props.spec.state.stateNodeName;
 
@@ -64,9 +60,46 @@ var state2PropsMaker = function state2PropsMaker(compName, props) {
     };
 };
 
-var createTags = function createTags(props) {
-    var spec = (0, _ramda.path)(['spec'], props);
+var createTags = function createTags(spec, props) {
+    var name2func = function name2func(tag) {
+        return newTags[tag] || props.tagFactory[tag] || tag;
+    };
 
+    var stateNodeName = props.stateNodeName,
+        actionLib = props.actionLib;
+
+    var comps = spec.components;
+    var compName2Elem = function compName2Elem(def, name, comps) {
+        return function (props2) {
+            return _react2.default.createElement(ReactMLElem, _extends({}, props2, {
+                tagFactory: name2func,
+                stateNodeName: stateNodeName,
+                spec: spec,
+                component: name,
+                actionLib: actionLib
+            }));
+        };
+    };
+
+    var newTags = (0, _ramda.mapObjIndexed)(compName2Elem, comps);
+    return name2func;
+};
+
+var ReactMLElem = exports.ReactMLElem = function ReactMLElem(props) {
+    var compName = props.component;
+    var compDef = props.spec.components[compName];
+    var root = compDef.view;
+
+    var compProps = _extends({ root: root }, props);
+
+    var mapStateToProps = state2PropsMaker(compName, props);
+    var connector = connect(mapStateToProps, props.actionLib);
+    var stylish = withStyles(defaultToEmpty(compDef.styles));
+    return _react2.default.createElement(connector(stylish(renderer)), compProps);
+};
+
+var ReactML = exports.ReactML = function ReactML(props) {
+    var spec = (0, _normalize.normalizeNode)(props.spec);
     var validationResults = (0, _validate2.default)(spec);
     if (validationResults.errors) {
         return _react2.default.createElement(
@@ -85,45 +118,11 @@ var createTags = function createTags(props) {
             )
         );
     }
-    var comps = (0, _ramda.path)(['spec', 'components'])(props);
-    Object.keys(comps).forEach(function (name) {
-        props.tagFactory[name] = function () {
-            var props2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            return _react2.default.createElement(ReactML, _extends({
-                tagFactory: props.tagFactory,
-                stateNodeName: props.stateNodeName,
-                spec: spec,
-                component: name,
-                actionLib: props.actionLib
-            }, props2));
-        };
-    });
-};
+    var tagFactory = createTags(spec, props);
 
-var ReactML = exports.ReactML = function ReactML(props) {
-    var spec = (0, _ramda.path)(['spec'], props);
-
-    if (!spec.created) {
-        createTags(props);
-        spec.tagFactory = props.tagFactory;
-    }
-    var tagFactory = _extends({}, _materialUiTagFactory2.default, spec.tagFactory, props.tagFactory);
-
-    var stateNodeName = props.stateNodeName;
-    var compName = props.component;
-    var compDef = spec.components[compName];
-    var styles = compDef.styles;
-    var viewDef = compDef.view;
-
-    var compProps = _extends({
-        tagFactory: tagFactory,
-        root: viewDef,
-        stateNodeName: stateNodeName
-    }, props);
-
-    var mapStateToProps = state2PropsMaker(compName, props);
-    var connector = connect(mapStateToProps, props.actionLib);
-    var stylish = withStyles(defaultToEmpty(styles));
-    return _react2.default.createElement(connector(stylish(renderer)), compProps);
+    return _react2.default.createElement(ReactMLElem, _extends({}, props, {
+        spec: spec,
+        tagFactory: tagFactory
+    }));
 };

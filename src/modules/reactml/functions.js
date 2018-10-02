@@ -41,6 +41,12 @@ const mapNode2Tag = curry((tagFactory, node) => {
     if (!node.tag) {
         throw new Error("Invalid configuration. Specify a tag name")
     }
+    if (isFunction(tagFactory)) {
+        return tagFactory(node.tag)
+    }
+    if (tagFactory.isVocab) { // vocab
+        return tagFactory.map(node.tag);
+    }
     return tagFactory[node.tag] || node.tag;
 });
 

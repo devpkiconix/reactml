@@ -1,13 +1,13 @@
 import React from 'react';
 import {
     __, defaultTo, path as pathGet,
-    curry,
+    curry, mapObjIndexed,
 } from 'ramda';
 import mapValues from 'lodash/mapValues';
 import dependencies from './dependencies';
 import renderLib from './render';
-import defaultTagFactory from './materialUiTagFactory';
 import validate from '../../modules/reactml/validate';
+import { normalizeNode } from '../../modules/reactml/normalize';
 
 const renderer = curry(renderLib.render)(dependencies);
 
@@ -16,9 +16,7 @@ const { connect, withStyles } = dependencies;
 const defaultToEmpty = defaultTo({})
 
 const state2PropsMaker = (compName, props) => {
-    if (!props.spec) {
-        debugger
-    }
+
     const state2propsPath = ['spec', 'components', compName, 'state-to-props'];
     const stateNodeName = props.spec.state.stateNodeName;
 
@@ -38,10 +36,46 @@ const state2PropsMaker = (compName, props) => {
     };
 };
 
-const createTags = (props) => {
-    let spec = pathGet(['spec'], props);
-    // augment tag factory with components defined within the spec
-    let validationResults = validate(spec);
+const createTags = (spec, props) => {
+
+    // translate name to a react component
+    const name2func = (tag) => newTags[tag] || props.tagFactory[tag] || tag;
+
+    const { stateNodeName, actionLib } = props;
+    let comps = spec.components;
+    const compName2Elem = (def, name, comps) => (props2) =>
+        (<ReactMLElem
+            {...props2}
+            tagFactory={name2func}
+            stateNodeName={stateNodeName}
+            spec={spec}
+            component={name}
+            actionLib={actionLib}
+        />);
+
+    const newTags = mapObjIndexed(compName2Elem, comps);
+    return name2func;
+}
+
+export const ReactMLElem = props => {
+    const compName = props.component;
+    const compDef = props.spec.components[compName];
+    const root = compDef.view;
+
+    const compProps = { root, ...props, };
+
+    const mapStateToProps = state2PropsMaker(compName, props);
+    const connector = connect(mapStateToProps, props.actionLib);
+    const stylish = withStyles(defaultToEmpty(compDef.styles));
+    return React.createElement(
+        connector(stylish(renderer)),
+        compProps
+    );
+}
+
+export const ReactML = (props) => {
+    const spec = normalizeNode(props.spec);
+    const validationResults = validate(spec);
     if (validationResults.errors) {
         return <div>
             <h2> Invalid Spec </h2>
@@ -50,53 +84,14 @@ const createTags = (props) => {
                 </pre>
         </div>;
     }
-    let comps = pathGet(['spec', 'components'])(props);
-    Object.keys(comps).forEach(name => {
-        props.tagFactory[name] = (props2 = {}) => {
-            return (<ReactML
-                tagFactory={props.tagFactory}
-                stateNodeName={props.stateNodeName}
-                spec={spec}
-                component={name}
-                actionLib={props.actionLib}
-                {...props2}
-            />);
-        }
-    });
-}
 
-export const ReactML = (props) => {
-    let spec = pathGet(['spec'], props);
     // augment tag factory with components defined within the spec
-    if (!spec.created) {
-        createTags(props);
-        spec.tagFactory = props.tagFactory;
-    }
-    let tagFactory = {
-        ...defaultTagFactory,
-        ...spec.tagFactory,
-        ...props.tagFactory,
-    };
+    const tagFactory = createTags(spec, props);
 
-    const stateNodeName = props.stateNodeName;
-    const compName = props.component;
-    const compDef = spec.components[compName];
-    const styles = compDef.styles;
-    const viewDef = compDef.view;
-
-    const compProps = {
-        tagFactory,
-        root: viewDef,
-        stateNodeName,
-        ...props,
-    };
-
-    const mapStateToProps = state2PropsMaker(compName, props);
-    const connector = connect(mapStateToProps, props.actionLib);
-    const stylish = withStyles(defaultToEmpty(styles));
-    return React.createElement(
-        connector(stylish(renderer)),
-        compProps
-    );
+    return <ReactMLElem
+        {...props}
+        spec={spec}
+        tagFactory={tagFactory}
+    />;
 };
 

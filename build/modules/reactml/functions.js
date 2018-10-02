@@ -45,6 +45,12 @@ var mapNode2Tag = (0, _ramda.curry)(function (tagFactory, node) {
     if (!node.tag) {
         throw new Error("Invalid configuration. Specify a tag name");
     }
+    if ((0, _ramdaAdjunct.isFunction)(tagFactory)) {
+        return tagFactory(node.tag);
+    }
+    if (tagFactory.isVocab) {
+        return tagFactory.map(node.tag);
+    }
     return tagFactory[node.tag] || node.tag;
 });
 
