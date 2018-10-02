@@ -106,8 +106,9 @@ var ReactML = exports.ReactML = function ReactML(props) {
 
     if (!spec.created) {
         createTags(props);
-        spec.created = true;
+        spec.tagFactory = props.tagFactory;
     }
+    var tagFactory = _extends({}, _materialUiTagFactory2.default, spec.tagFactory, props.tagFactory);
 
     var stateNodeName = props.stateNodeName;
     var compName = props.component;
@@ -116,7 +117,7 @@ var ReactML = exports.ReactML = function ReactML(props) {
     var viewDef = compDef.view;
 
     var compProps = _extends({
-        tagFactory: props.tagFactory || _materialUiTagFactory2.default,
+        tagFactory: tagFactory,
         root: viewDef,
         stateNodeName: stateNodeName
     }, props);

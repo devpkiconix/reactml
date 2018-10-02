@@ -70,8 +70,13 @@ export const ReactML = (props) => {
     // augment tag factory with components defined within the spec
     if (!spec.created) {
         createTags(props);
-        spec.created = true;
+        spec.tagFactory = props.tagFactory;
     }
+    let tagFactory = {
+        ...defaultTagFactory,
+        ...spec.tagFactory,
+        ...props.tagFactory,
+    };
 
     const stateNodeName = props.stateNodeName;
     const compName = props.component;
@@ -80,7 +85,7 @@ export const ReactML = (props) => {
     const viewDef = compDef.view;
 
     const compProps = {
-        tagFactory: props.tagFactory || defaultTagFactory,
+        tagFactory,
         root: viewDef,
         stateNodeName,
         ...props,
