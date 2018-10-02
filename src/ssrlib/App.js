@@ -50,7 +50,8 @@ const yamlComp2App = yaml => route => {
 	const spec = fromYaml(yaml);
 
 	const App = ReactMLHoc(spec, actionLib, appTagFactory,
-		'inputFlow', 'App');
+		spec.state.stateNodeName || 'inputFlow',
+		'App');
 	const store = createStore(
 		rootReducer,  { reactml: fromJS({
 			inputFlow: spec.state.initial,

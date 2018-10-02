@@ -73,7 +73,7 @@ var yamlComp2App = function yamlComp2App(yaml) {
 
 		var spec = (0, _util.fromYaml)(yaml);
 
-		var App = (0, _ReactMLHoc2.default)(spec, actionLib, appTagFactory, 'inputFlow', 'App');
+		var App = (0, _ReactMLHoc2.default)(spec, actionLib, appTagFactory, spec.state.stateNodeName || 'inputFlow', 'App');
 		var store = (0, _redux.createStore)(rootReducer, { reactml: (0, _immutable.fromJS)({
 				inputFlow: spec.state.initial
 			}) });
