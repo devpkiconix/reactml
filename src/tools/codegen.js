@@ -19,14 +19,14 @@ const stdTags = [...htmlTags, ...voidHtmlTags];
 
 const BEGIN = R.identity, END = R.identity;
 const dbgDump = console.log;
-const prettify = (code) =>
+export const prettify = (code) =>
     prettier.format(code, { semi: true, parser: "babylon" });
 
 const componentsLens = R.lensProp('components');
 
 const readFile = (fn) => readFileSync(fn);
-const parseYaml = (x) => yamlLib.safeLoad(x);
-const parseJson = (x) => JSON.parse(x);
+export const parseYaml = (x) => yamlLib.safeLoad(x);
+export const parseJson = (x) => JSON.parse(x);
 const toString = (x) => yamlLib.safeDump(x, 2);
 
 const genTail = (x) => x;
@@ -234,6 +234,7 @@ const generator = (writer) => R.compose(
 const processParsed = (writer) => R.compose(
     generator(writer),
     normalizeChildren,
+    tap("begin processParsed"),
     BEGIN);
 
 const processor = (parse, writer) => R.compose(
@@ -257,8 +258,8 @@ export
 const codegenJs = (spec, outputDir = "./gen") =>
     processParsed(writeComponent(outputDir))(spec);
 
-export
-const codegenJsWebbpack = function(yaml) {
+// untested
+export const codegenJsWebbpack = function(yaml) {
     const writer = (compName) => (content) => {
         this.emitFile(`${compName}.jsx`, content);
     };
@@ -272,3 +273,27 @@ export const codegenYamlWatch = (srcFileName, outputDir = "./gen") =>
         processor(parseYaml, writeComponent(outputDir))(srcFileName);
     });
 
+
+export const codegenJsonWatch = (srcFileName, outputDir = "./gen") =>
+    watchFile(srcFileName, () => {
+        console.log(`${srcFileName} changed`);
+        processor(parseJson, writeComponent(outputDir))(srcFileName);
+    });
+
+
+/**
+ * Takes spec as object and returns a table of strings
+ * indexed by compName
+ */
+export const codegenJs2Str = (spec) => {
+    const results = {};
+    const writer = compName => str => (results[compName] = str);
+console.log('spec', spec)
+    return processParsed(writer)(spec)
+        .then(() => results);
+}
+
+const tap = (msg) => x => {
+    console.log(msg, x);
+    return x;
+};

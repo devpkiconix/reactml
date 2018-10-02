@@ -17,9 +17,9 @@ const ReactMLArrayMapper = (props) => {
         // console.log("creating react element with props", newProps);
         return React.createElement(component, { ...newProps })
     });
-    return <div>
+    return <React.Fragment>
         {mapped}
-    </div>
+    </React.Fragment>
 }
 
 export default ReactMLArrayMapper;

@@ -35,7 +35,7 @@ var ReactMLArrayMapper = function ReactMLArrayMapper(props) {
         return _react2.default.createElement(component, _extends({}, newProps));
     });
     return _react2.default.createElement(
-        'div',
+        _react2.default.Fragment,
         null,
         mapped
     );

@@ -64,39 +64,9 @@ var state2PropsMaker = function state2PropsMaker(compName, props) {
     };
 };
 
-var ReactML = exports.ReactML = function ReactML(props) {
-    var stateNodeName = props.stateNodeName;
-    var compName = props.component;
-    var stylesPath = ['spec', 'components', compName, 'styles'];
-    var viewNodePath = ['spec', 'components', compName, 'view'];
-    var mapStateToProps = state2PropsMaker(compName, props);
-    var actionExtractor = function actionExtractor() {
-        return props.actionLib;
-    };
-    var compProps = _extends({
-        tagFactory: props.tagFactory || _materialUiTagFactory2.default,
-        root: (0, _ramda.path)(viewNodePath, props),
-        stateNodeName: stateNodeName
-    }, props);
-
-    var comps = (0, _ramda.path)(['spec', 'components'])(props);
-    Object.keys(comps).forEach(function (name) {
-        if (name !== compName && !props.tagFactory[name]) {
-            props.tagFactory[name] = function () {
-                var props2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-                return _react2.default.createElement(ReactML, _extends({
-                    tagFactory: props.tagFactory,
-                    stateNodeName: stateNodeName,
-                    spec: spec,
-                    component: name,
-                    actionLib: props.actionLib
-                }, props2));
-            };
-        }
-    });
-
+var createTags = function createTags(props) {
     var spec = (0, _ramda.path)(['spec'], props);
+
     var validationResults = (0, _validate2.default)(spec);
     if (validationResults.errors) {
         return _react2.default.createElement(
@@ -115,5 +85,44 @@ var ReactML = exports.ReactML = function ReactML(props) {
             )
         );
     }
-    return _react2.default.createElement(connect(mapStateToProps, actionExtractor())(withStyles(defaultToEmpty((0, _ramda.path)(stylesPath, props)))(renderer)), compProps);
+    var comps = (0, _ramda.path)(['spec', 'components'])(props);
+    Object.keys(comps).forEach(function (name) {
+        props.tagFactory[name] = function () {
+            var props2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            return _react2.default.createElement(ReactML, _extends({
+                tagFactory: props.tagFactory,
+                stateNodeName: props.stateNodeName,
+                spec: spec,
+                component: name,
+                actionLib: props.actionLib
+            }, props2));
+        };
+    });
+};
+
+var ReactML = exports.ReactML = function ReactML(props) {
+    var spec = (0, _ramda.path)(['spec'], props);
+
+    if (!spec.created) {
+        createTags(props);
+        spec.created = true;
+    }
+
+    var stateNodeName = props.stateNodeName;
+    var compName = props.component;
+    var compDef = spec.components[compName];
+    var styles = compDef.styles;
+    var viewDef = compDef.view;
+
+    var compProps = _extends({
+        tagFactory: props.tagFactory || _materialUiTagFactory2.default,
+        root: viewDef,
+        stateNodeName: stateNodeName
+    }, props);
+
+    var mapStateToProps = state2PropsMaker(compName, props);
+    var connector = connect(mapStateToProps, props.actionLib);
+    var stylish = withStyles(defaultToEmpty(styles));
+    return _react2.default.createElement(connector(stylish(renderer)), compProps);
 };

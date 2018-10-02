@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.codegenJsWebbpack = exports.codegenJs = exports.codegenJson = exports.codegenYaml = undefined;
+exports.codegenJs2Str = exports.codegenJsonWatch = exports.codegenYamlWatch = exports.codegenJsWebbpack = exports.codegenJs = exports.codegenJson = exports.codegenYaml = exports.parseJson = exports.parseYaml = exports.prettify = undefined;
 
 var _fs = require('fs');
 
@@ -44,7 +44,7 @@ var stdTags = [].concat(_toConsumableArray(htmlTags), _toConsumableArray(voidHtm
 var BEGIN = R.identity,
     END = R.identity;
 var dbgDump = console.log;
-var prettify = function prettify(code) {
+var prettify = exports.prettify = function prettify(code) {
     return _prettier2.default.format(code, { semi: true, parser: "babylon" });
 };
 
@@ -53,10 +53,10 @@ var componentsLens = R.lensProp('components');
 var readFile = function readFile(fn) {
     return (0, _fs.readFileSync)(fn);
 };
-var parseYaml = function parseYaml(x) {
+var parseYaml = exports.parseYaml = function parseYaml(x) {
     return _jsYaml2.default.safeLoad(x);
 };
-var parseJson = function parseJson(x) {
+var parseJson = exports.parseJson = function parseJson(x) {
     return JSON.parse(x);
 };
 var toString = function toString(x) {
@@ -153,12 +153,14 @@ var genTagImport = function genTagImport(comp, compName, oComps) {
     });
 };
 
-var ejsGen = function ejsGen(fileName, context) {
-    return new Promise(function (resolve, reject) {
-        return ejs.renderFile(fileName, context, function (err, output) {
-            return err ? reject(err) : resolve(output);
+var ejsGen = function ejsGen(fileName) {
+    return function (context) {
+        return new Promise(function (resolve, reject) {
+            return ejs.renderFile(fileName, context, function (err, output) {
+                return err ? reject(err) : resolve(output);
+            });
         });
-    });
+    };
 };
 
 var codegenTree = function codegenTree(propGetter, _) {
@@ -197,6 +199,8 @@ var basicRenderCodegen = function basicRenderCodegen(tagGetter, propGetter, mapp
 
     return mainCode;
 };
+
+var reactViewCodegen = ejsGen(VIEW_TEMPLATE_FILENAME);
 
 var genComp = function genComp(writer) {
     return function (comp, compName, oComps) {
@@ -239,7 +243,7 @@ var genComp = function genComp(writer) {
                 tagImport: tagImport, compName: compName, reactComponentBody: reactComponentBody,
                 mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps
             };
-            return ejsGen(VIEW_TEMPLATE_FILENAME, context).then(prettyWrite(writer(context.compName)));
+            return reactViewCodegen(context).then(prettyWrite(writer(context.compName)));
         });
     };
 };
@@ -255,7 +259,7 @@ var generator = function generator(writer) {
 };
 
 var processParsed = function processParsed(writer) {
-    return R.compose(generator(writer), _normalize.normalizeChildren, BEGIN);
+    return R.compose(generator(writer), _normalize.normalizeChildren, tap("begin processParsed"), BEGIN);
 };
 
 var processor = function processor(parse, writer) {
@@ -293,4 +297,40 @@ var codegenJsWebbpack = exports.codegenJsWebbpack = function codegenJsWebbpack(y
     };
     processParsed(writer)(spec);
     return;
+};
+
+var codegenYamlWatch = exports.codegenYamlWatch = function codegenYamlWatch(srcFileName) {
+    var outputDir = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "./gen";
+    return (0, _fs.watchFile)(srcFileName, function () {
+        console.log(srcFileName + ' changed');
+        processor(parseYaml, writeComponent(outputDir))(srcFileName);
+    });
+};
+
+var codegenJsonWatch = exports.codegenJsonWatch = function codegenJsonWatch(srcFileName) {
+    var outputDir = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "./gen";
+    return (0, _fs.watchFile)(srcFileName, function () {
+        console.log(srcFileName + ' changed');
+        processor(parseJson, writeComponent(outputDir))(srcFileName);
+    });
+};
+
+var codegenJs2Str = exports.codegenJs2Str = function codegenJs2Str(spec) {
+    var results = {};
+    var writer = function writer(compName) {
+        return function (str) {
+            return results[compName] = str;
+        };
+    };
+    console.log('spec', spec);
+    return processParsed(writer)(spec).then(function () {
+        return results;
+    });
+};
+
+var tap = function tap(msg) {
+    return function (x) {
+        console.log(msg, x);
+        return x;
+    };
 };

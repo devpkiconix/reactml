@@ -38,56 +38,60 @@ const state2PropsMaker = (compName, props) => {
     };
 };
 
-export const ReactML = (props) => {
-    const stateNodeName = props.stateNodeName;
-    const compName = props.component;
-    const stylesPath = ['spec', 'components', compName, 'styles'];
-    const viewNodePath = ['spec', 'components', compName, 'view']
-    const mapStateToProps = state2PropsMaker(compName, props);
-    const actionExtractor = () => props.actionLib;
-    const compProps = {
-        tagFactory: props.tagFactory || defaultTagFactory,
-        root: pathGet(viewNodePath, props),
-        stateNodeName,
-        ...props,
-    };
-
-    // augment tag factory with components defined within the spec
-    let comps = pathGet(['spec', 'components'])(props);
-    Object.keys(comps).forEach(name => {
-        if (name !== compName && !props.tagFactory[name]) {
-            props.tagFactory[name] = (props2 = {}) => {
-                return (<ReactML
-                    tagFactory={props.tagFactory}
-                    stateNodeName={stateNodeName}
-                    spec={spec}
-                    component={name}
-                    actionLib={props.actionLib}
-                    {...props2}
-                />);
-            }
-        }
-    });
-
+const createTags = (props) => {
     let spec = pathGet(['spec'], props);
+    // augment tag factory with components defined within the spec
     let validationResults = validate(spec);
     if (validationResults.errors) {
         return <div>
             <h2> Invalid Spec </h2>
             <pre>
                 {JSON.stringify(validationResults)};
-            </pre>
+                </pre>
         </div>;
     }
+    let comps = pathGet(['spec', 'components'])(props);
+    Object.keys(comps).forEach(name => {
+        props.tagFactory[name] = (props2 = {}) => {
+            return (<ReactML
+                tagFactory={props.tagFactory}
+                stateNodeName={props.stateNodeName}
+                spec={spec}
+                component={name}
+                actionLib={props.actionLib}
+                {...props2}
+            />);
+        }
+    });
+}
+
+export const ReactML = (props) => {
+    let spec = pathGet(['spec'], props);
+    // augment tag factory with components defined within the spec
+    if (!spec.created) {
+        createTags(props);
+        spec.created = true;
+    }
+
+    const stateNodeName = props.stateNodeName;
+    const compName = props.component;
+    const compDef = spec.components[compName];
+    const styles = compDef.styles;
+    const viewDef = compDef.view;
+
+    const compProps = {
+        tagFactory: props.tagFactory || defaultTagFactory,
+        root: viewDef,
+        stateNodeName,
+        ...props,
+    };
+
+    const mapStateToProps = state2PropsMaker(compName, props);
+    const connector = connect(mapStateToProps, props.actionLib);
+    const stylish = withStyles(defaultToEmpty(styles));
     return React.createElement(
-        connect(mapStateToProps, actionExtractor())(
-            withStyles(
-                defaultToEmpty(
-                    pathGet(stylesPath, props)
-                ))(
-                    renderer
-                )
-        ),
-        compProps);
+        connector(stylish(renderer)),
+        compProps
+    );
 };
 
