@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.codegenJs2Str = exports.codegenJsonWatch = exports.codegenYamlWatch = exports.codegenJsWebbpack = exports.codegenJs = exports.codegenJson = exports.codegenYaml = exports.parseJson = exports.parseYaml = exports.prettify = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _fs = require('fs');
 
 var _jsYaml = require('js-yaml');
@@ -22,6 +24,8 @@ var _functions = require('../modules/reactml/functions');
 var _functions2 = _interopRequireDefault(_functions);
 
 var _normalize = require('../modules/reactml/normalize');
+
+var _diff = require('./diff');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -85,6 +89,7 @@ var prettyWrite = function prettyWrite(writer) {
 var reduce2TagList = function reduce2TagList(node) {
     var list = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+    list[node.tag] = node.tag;
     var tagsInProps = R.keys(node.props || {}).forEach(function (name) {
         var val = node.props[name];
         if ((0, _ramdaAdjunct.isString)(val) && val.startsWith(TRIPLE_DOT)) {
@@ -144,12 +149,12 @@ var comp2localTagCode = function comp2localTagCode(oComps) {
 
 var genTagImport = function genTagImport(comp, compName, oComps) {
     return new Promise(function (resolve, reject) {
-
         var foreignTags = comp2foreignTags(oComps)(comp);
-        var foreignTagCode = foreignTags.length ? '\nimport TagFactory from \'../tag-factory\';\nconst { ' + foreignTags + ' } = TagFactory;\n        ' : '';
+        var foreignTagCode = foreignTags.length ? '\nimport TagFactory from \'../tag-factory\';\n        ' : '';
+        var foreignTagCode2 = foreignTags.length ? 'const { ' + foreignTags + ' } = TagFactory;' : '';
 
         var localTagCode = comp2localTagCode(oComps)(comp);
-        resolve(foreignTagCode + '\n' + localTagCode);
+        resolve(foreignTagCode + '\n' + localTagCode + '\n' + foreignTagCode2);
     });
 };
 
@@ -204,6 +209,10 @@ var reactViewCodegen = ejsGen(VIEW_TEMPLATE_FILENAME);
 
 var genComp = function genComp(writer) {
     return function (comp, compName, oComps) {
+        if (!comp.codegenFlag) {
+            return null;
+        }
+        console.log("Generating for", compName);
         var propGetter = function propGetter(val) {
             if ((0, _ramdaAdjunct.isString)(val)) {
                 if (val.startsWith(TRIPLE_DOT)) {
@@ -240,18 +249,28 @@ var genComp = function genComp(writer) {
         }
         return genTagImport(comp, compName, oComps).then(function (tagImport) {
             var context = {
-                tagImport: tagImport, compName: compName, reactComponentBody: reactComponentBody,
-                mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps
+                tagImport: tagImport, compName: compName, component: comp, reactComponentBody: reactComponentBody,
+                mapStateToProps: mapStateToProps, mapActionsToProps: mapActionsToProps,
+                styles: comp.styles || {}
             };
             return reactViewCodegen(context).then(prettyWrite(writer(context.compName)));
         });
     };
 };
 
+var injectStateNodeName = function injectStateNodeName(spec) {
+    var stateNodeName = spec.state.stateNodeName;
+    var components = R.mapObjIndexed(function (comp) {
+        return _extends({}, comp, { stateNodeName: stateNodeName
+        });
+    }, spec.components);
+    return _extends({}, spec, { components: components });
+};
+
 var generateComps = function generateComps(writer) {
     return R.compose(function (proms) {
         return Promise.all(proms);
-    }, R.values, R.mapObjIndexed(genComp(writer)), R.view(componentsLens), BEGIN);
+    }, R.values, R.mapObjIndexed(genComp(writer)), (0, _diff.composableDiff)(), R.view(componentsLens), injectStateNodeName, BEGIN);
 };
 
 var generator = function generator(writer) {
@@ -259,7 +278,7 @@ var generator = function generator(writer) {
 };
 
 var processParsed = function processParsed(writer) {
-    return R.compose(generator(writer), _normalize.normalizeChildren, tap("begin processParsed"), BEGIN);
+    return R.compose(tap("generated code"), generator(writer), _normalize.normalizeChildren, BEGIN);
 };
 
 var processor = function processor(parse, writer) {
@@ -322,7 +341,7 @@ var codegenJs2Str = exports.codegenJs2Str = function codegenJs2Str(spec) {
             return results[compName] = str;
         };
     };
-    console.log('spec', spec);
+
     return processParsed(writer)(spec).then(function () {
         return results;
     });

@@ -10,6 +10,8 @@ const ejs = require("ejs");
 import functions from '../modules/reactml/functions';
 import { normalizeChildren } from '../modules/reactml/normalize';
 
+import { composableDiff } from './diff';
+
 const { traverse } = functions;
 
 const TEMPLATE_DIR = process.env.TEMPLATE_DIR || `node_modules/reactml/templates`;
@@ -39,14 +41,15 @@ const write = (fileName) => (content) => writeFileSync(fileName, content);
 const prettyWrite = (writer) => R.compose(writer, prettify);
 
 const reduce2TagList = (node, list = {}) => {
-        const tagsInProps = R.keys((node.props||{})).forEach(name => {
-            const val = node.props[name];
-            if(isString(val) && val.startsWith(TRIPLE_DOT)) {
-                const tag = val.replace(TRIPLE_DOT,'');
-                list[tag] = tag;
-            }
-        });
-        return node.children.reduce((list, child) => {
+    list[node.tag] = node.tag;
+    const tagsInProps = R.keys((node.props||{})).forEach(name => {
+        const val = node.props[name];
+        if(isString(val) && val.startsWith(TRIPLE_DOT)) {
+            const tag = val.replace(TRIPLE_DOT,'');
+            list[tag] = tag;
+        }
+    });
+    return node.children.reduce((list, child) => {
         list[child.tag] = child.tag;
 
         return reduce2TagList(child, list);
@@ -116,15 +119,17 @@ const comp2localTagCode = (oComps) => R.compose(
 
 const genTagImport = (comp, compName, oComps) =>
     new Promise((resolve, reject) => {
-
         const foreignTags = comp2foreignTags(oComps)(comp);
         const foreignTagCode = foreignTags.length ? `
 import TagFactory from '../tag-factory';
-const { ${foreignTags} } = TagFactory;
         ` : '';
+        const foreignTagCode2 = foreignTags.length ?
+            `const { ${foreignTags} } = TagFactory;`
+            :
+            '';
 
         const localTagCode = comp2localTagCode(oComps)(comp);
-        resolve(foreignTagCode + '\n' + localTagCode);
+        resolve(foreignTagCode + '\n' + localTagCode + '\n' + foreignTagCode2);
     });
 
 const ejsGen = fileName => context => new Promise((resolve, reject) =>
@@ -169,6 +174,10 @@ ${schildren}
 const reactViewCodegen = ejsGen(VIEW_TEMPLATE_FILENAME);
 
 const genComp = (writer) => (comp, compName, oComps) => {
+    if (! comp.codegenFlag) {
+        return null;
+    }
+    console.log("Generating for", compName)
     const propGetter = (val) => {
         if (isString(val)) {
             if (val.startsWith(TRIPLE_DOT)) {
@@ -208,21 +217,35 @@ const genComp = (writer) => (comp, compName, oComps) => {
     }
     return genTagImport(comp, compName, oComps).then(tagImport => {
         const context = {
-            tagImport, compName, reactComponentBody,
+            tagImport, compName, component: comp, reactComponentBody,
             mapStateToProps, mapActionsToProps,
+            styles: comp.styles || {}
         };
         return reactViewCodegen(context)
             .then(prettyWrite(writer(context.compName)));
     });
 };
 
+/**
+ * Add stateNodeName property to all components to use
+ * during code generation.
+ */
+const injectStateNodeName = (spec) => {
+    const stateNodeName = spec.state.stateNodeName;
+    const components = R.mapObjIndexed((comp) => ({
+        ...comp, stateNodeName,
+    }), spec.components);
+    return { ...spec, components };
+}
 
 const generateComps = (writer) => R.compose(
     (proms) => Promise.all(proms),
     R.values,
     R.mapObjIndexed(genComp(writer)),
+    composableDiff(),
     R.view(componentsLens),
     // dbgDump,
+    injectStateNodeName,  // inject stateNodeName into components
     BEGIN);
 
 const generator = (writer) => R.compose(
@@ -232,9 +255,9 @@ const generator = (writer) => R.compose(
     BEGIN);
 
 const processParsed = (writer) => R.compose(
+    tap("generated code"),
     generator(writer),
     normalizeChildren,
-    tap("begin processParsed"),
     BEGIN);
 
 const processor = (parse, writer) => R.compose(
@@ -288,7 +311,7 @@ export const codegenJsonWatch = (srcFileName, outputDir = "./gen") =>
 export const codegenJs2Str = (spec) => {
     const results = {};
     const writer = compName => str => (results[compName] = str);
-console.log('spec', spec)
+
     return processParsed(writer)(spec)
         .then(() => results);
 }
