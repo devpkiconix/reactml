@@ -235,7 +235,7 @@ export const reactRenderer = (vocab: Vocab) => (state: any) => (tag: string) => 
 
 // Courtesy: https://medium.com/front-end-weekly/loading-components-asynchronously-in-react-app-with-an-hoc-61ca27c4fda7
 export const asyncComponent = (name: string, importComponent: any) => {
-    return class extends React.Component {
+    return class AsyncComponent extends React.Component {
         state = {
             component: null,
             error: null
