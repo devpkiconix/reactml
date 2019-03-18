@@ -1,0 +1,19 @@
+State(init=$f:stateInit)
+    div(foo=$p:a.b.c)
+      h3
+        span
+          = Hello $p:user.name.first
+      input(type="text" oninput=$d:helloinput).
+      div(class="buttons")
+        button(onclick=$d:helloclick)
+          = click me
+      table(class="table striped")
+        thead
+          tr
+            th
+              = name
+            th
+              = email
+        tbody
+          loop(over=$p:user.accounts as="account" component=$f:AccountRow).
+        tfoot().

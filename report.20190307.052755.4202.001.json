@@ -1,0 +1,654 @@
+
+{
+  "header": {
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "location": "OnFatalError",
+    "filename": "report.20190307.052755.4202.001.json",
+    "dumpEventTime": "2019-03-07T05:27:55Z",
+    "dumpEventTimeStamp": "1551916675827",
+    "processId": "4202",
+    "commandLine": [
+      "/usr/local/Cellar/node/11.8.0/bin/node",
+      "/Users/work/dev/reactml-hops/rtml/node_modules/jest-worker/build/workers/processChild.js"
+    ],
+    "nodejsVersion": "v11.8.0",
+    "wordSize": "64 bit",
+    "componentVersions": {
+      "node": "11.8.0",
+      "v8": "7.0.276.38-node.16",
+      "uv": "1.25.0",
+      "zlib": "1.2.11",
+      "brotli": "1.0.7",
+      "ares": "1.15.0",
+      "modules": "67",
+      "nghttp2": "1.34.0",
+      "napi": "4",
+      "llhttp": "1.0.1",
+      "http_parser": "2.8.0",
+      "openssl": "1.1.0j",
+      "cldr": "34.0",
+      "icu": "63.1",
+      "tz": "2018e",
+      "unicode": "11.0",
+      "arch": "x64",
+      "platform": "darwin",
+      "release": "node"
+    },
+    "osVersion": "Darwin 17.7.0 Darwin Kernel Version 17.7.0: Thu Dec 20 21:47:19 PST 2018; root:xnu-4570.71.22~1/RELEASE_X86_64",
+    "machine": "Darwin 17.7.0 Darwin Kernel Version 17.7.0: Thu Dec 20 21:47:19 PST 2018; root:xnu-4570.71.22~1/RELEASE_X86_64mint.local x86_64"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ]
+  },
+  "nativeStack": [
+    " [pc=0x100124fcd] report::TriggerNodeReport(v8::Isolate*, node::Environment*, char const*, char const*, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, v8::Local<v8::String>) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x100061aec] node::OnFatalError(char const*, char const*) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10017618b] v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, bool) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10017612c] v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, bool) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x100436da8] v8::internal::Heap::UpdateSurvivalStatistics(int) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x1004387c5] v8::internal::Heap::CheckIneffectiveMarkCompact(unsigned long, double) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10043613d] v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::GCCallbackFlags) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x100434f33] v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10043ce01] v8::internal::Heap::AllocateRawWithLightRetry(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10043ce50] v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x10041d217] v8::internal::Factory::NewFillerObject(int, bool, v8::internal::AllocationSpace) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x1005faa2e] v8::internal::Runtime_AllocateInNewSpace(int, v8::internal::Object**, v8::internal::Isolate*) [/usr/local/Cellar/node/11.8.0/bin/node]",
+    " [pc=0x1e8b480cfc7d] "
+  ],
+  "javascriptHeap": {
+    "totalMemory": "1493409792",
+    "totalCommittedMemory": "1490539792",
+    "usedMemory": "1308014064",
+    "availableMemory": "53907264",
+    "memoryLimit": "1526909922",
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": "524288",
+        "committedMemory": "42224",
+        "capacity": "515584",
+        "used": "33520",
+        "available": "482064"
+      },
+      "new_space": {
+        "memorySize": "33554432",
+        "committedMemory": "33554432",
+        "capacity": "16498688",
+        "used": "251448",
+        "available": "16247240"
+      },
+      "old_space": {
+        "memorySize": "1372262400",
+        "committedMemory": "1370060688",
+        "capacity": "1264448400",
+        "used": "1260578600",
+        "available": "3869800"
+      },
+      "code_space": {
+        "memorySize": "2097152",
+        "committedMemory": "2079456",
+        "capacity": "1584288",
+        "used": "1584288",
+        "available": "0"
+      },
+      "map_space": {
+        "memorySize": "63451136",
+        "committedMemory": "63282608",
+        "capacity": "25413280",
+        "used": "25413280",
+        "available": "0"
+      },
+      "large_object_space": {
+        "memorySize": "21520384",
+        "committedMemory": "21520384",
+        "capacity": "53461088",
+        "used": "20152928",
+        "available": "33308160"
+      },
+      "new_large_object_space": {
+        "memorySize": "0",
+        "committedMemory": "0",
+        "capacity": "0",
+        "used": "0",
+        "available": "0"
+      }
+    }
+  },
+  "resourceUsage": {
+    "userCpuSeconds": "1548.535517",
+    "kernelCpuSeconds": "37.574890",
+    "cpuConsumptionPercent": "0.000102",
+    "maxRss": "1605118197760",
+    "pageFaults": {
+      "IORequired": "17",
+      "IONotRequired": "1056446"
+    },
+    "fsActivity": {
+      "reads": "0",
+      "writes": "0"
+    }
+  },
+  "libuv": [
+    {
+      "type": "async",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "4356934416",
+      "details": ""
+    },
+    {
+      "type": "timer",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "140732920752936",
+      "details": "repeat: 0, timeout in: 5000 ms"
+    },
+    {
+      "type": "check",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "140732920753088",
+      "details": ""
+    },
+    {
+      "type": "idle",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "140732920753208",
+      "details": ""
+    },
+    {
+      "type": "prepare",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "140732920753328",
+      "details": ""
+    },
+    {
+      "type": "check",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "140732920753448",
+      "details": ""
+    },
+    {
+      "type": "async",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "4310609256",
+      "details": ""
+    },
+    {
+      "type": "pipe",
+      "is_active": "1",
+      "is_referenced": "1",
+      "address": "4361057608",
+      "details": "send buffer size: 8192, recv buffer size: 8192, file descriptor: 3, write queue size: 0, readable, writable"
+    },
+    {
+      "type": "pipe",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "4361055944",
+      "details": "send buffer size: 8192, recv buffer size: 8192, stderr, write queue size: 0, readable, writable"
+    },
+    {
+      "type": "pipe",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "4361074712",
+      "details": "send buffer size: 2080, recv buffer size: 8192, stdout, write queue size: 535, readable, writable"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359144896",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4358978048",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359059648",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359117856",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359060864",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359003200",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359003440",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359061888",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359062128",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4358993264",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4358993504",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4358962208",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359029312",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359143168",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359143408",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359146208",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359146448",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359146688",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359146928",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359132848",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359133088",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359133376",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359133664",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359030240",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359030480",
+      "details": "signum: 0 ()"
+    },
+    {
+      "type": "signal",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "4359030768",
+      "details": "signum: 0 ()"
+    }
+  ],
+  "environmentVariables": {
+    "TERM_SESSION_ID": "w1t0p0:EE2CDC37-73C4-48F7-B006-FB89DE1F91CE",
+    "SSH_AUTH_SOCK": "/private/tmp/com.apple.launchd.eAPxQ9wLVA/Listeners",
+    "Apple_PubSub_Socket_Render": "/private/tmp/com.apple.launchd.o1jLQU99fC/Render",
+    "COLORFGBG": "11;15",
+    "ITERM_PROFILE": "Default",
+    "XPC_FLAGS": "0x0",
+    "LANG": "en_US.UTF-8",
+    "PWD": "/Users/work/dev/reactml-hops/rtml",
+    "SHELL": "/bin/zsh",
+    "SECURITYSESSIONID": "186a6",
+    "TERM_PROGRAM_VERSION": "3.2.0beta5",
+    "TERM_PROGRAM": "iTerm.app",
+    "PATH": "/Users/work/.yarn/bin:/Users/work/.config/yarn/global/node_modules/.bin:/Users/work/.opam/4.02.2+multicore/bin:/Users/work/.local/bin:/Users/work/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Ballerina/ballerina-0.990.2/bin",
+    "DISPLAY": "/private/tmp/com.apple.launchd.e743NFR6hE/org.macosforge.xquartz:0",
+    "COLORTERM": "truecolor",
+    "COMMAND_MODE": "unix2003",
+    "TERM": "xterm-256color",
+    "HOME": "/Users/work",
+    "TMPDIR": "/var/folders/yc/j2xbpv8s28s3_41j9f1b36f40000gn/T/",
+    "USER": "work",
+    "XPC_SERVICE_NAME": "0",
+    "LOGNAME": "work",
+    "__CF_USER_TEXT_ENCODING": "0x1F5:0x0:0x0",
+    "ITERM_SESSION_ID": "w1t0p0:EE2CDC37-73C4-48F7-B006-FB89DE1F91CE",
+    "SHLVL": "1",
+    "OLDPWD": "/Users/work",
+    "ZSH": "/Users/work/.oh-my-zsh",
+    "PAGER": "less",
+    "LESS": "-R",
+    "LC_CTYPE": "en_US.UTF-8",
+    "LSCOLORS": "Gxfxcxdxbxegedabagacad",
+    "OCAML_TOPLEVEL_PATH": "/Users/work/.opam/4.02.2+multicore/lib/toplevel",
+    "PERL5LIB": "/Users/work/.opam/4.02.2+multicore/lib/perl5:",
+    "MANPATH": ":/Users/work/.opam/4.02.2+multicore/man",
+    "OPAMUTF8MSGS": "1",
+    "CAML_LD_LIBRARY_PATH": "/Users/work/.opam/4.02.2+multicore/lib/stublibs",
+    "_": "/Users/work/dev/reactml-hops/rtml/./node_modules/jest/bin/jest.js",
+    "NODE_ENV": "test",
+    "JEST_WORKER_ID": "0",
+    "FORCE_COLOR": "1"
+  },
+  "userLimits": {
+    "core_file_size_blocks": {
+      "soft": "0",
+      "hard": "unlimited"
+    },
+    "data_seg_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_locked_memory_bytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_memory_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "open_files": {
+      "soft": "24576",
+      "hard": "unlimited"
+    },
+    "stack_size_bytes": {
+      "soft": "8388608",
+      "hard": "67104768"
+    },
+    "cpu_time_seconds": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_user_processes": {
+      "soft": "1418",
+      "hard": "2128"
+    },
+    "virtual_memory_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    }
+  },
+  "sharedObjects": [
+    "/usr/local/Cellar/node/11.8.0/bin/node",
+    "/usr/local/opt/icu4c/lib/libicui18n.63.dylib",
+    "/usr/local/opt/icu4c/lib/libicuuc.63.dylib",
+    "/usr/local/opt/icu4c/lib/libicudata.63.1.dylib",
+    "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+    "/usr/lib/libSystem.B.dylib",
+    "/usr/lib/libc++.1.dylib",
+    "/usr/lib/system/libcache.dylib",
+    "/usr/lib/system/libcommonCrypto.dylib",
+    "/usr/lib/system/libcompiler_rt.dylib",
+    "/usr/lib/system/libcopyfile.dylib",
+    "/usr/lib/system/libcorecrypto.dylib",
+    "/usr/lib/system/libdispatch.dylib",
+    "/usr/lib/system/libdyld.dylib",
+    "/usr/lib/system/libkeymgr.dylib",
+    "/usr/lib/system/liblaunch.dylib",
+    "/usr/lib/system/libmacho.dylib",
+    "/usr/lib/system/libquarantine.dylib",
+    "/usr/lib/system/libremovefile.dylib",
+    "/usr/lib/system/libsystem_asl.dylib",
+    "/usr/lib/system/libsystem_blocks.dylib",
+    "/usr/lib/system/libsystem_c.dylib",
+    "/usr/lib/system/libsystem_configuration.dylib",
+    "/usr/lib/system/libsystem_coreservices.dylib",
+    "/usr/lib/system/libsystem_darwin.dylib",
+    "/usr/lib/system/libsystem_dnssd.dylib",
+    "/usr/lib/system/libsystem_info.dylib",
+    "/usr/lib/system/libsystem_m.dylib",
+    "/usr/lib/system/libsystem_malloc.dylib",
+    "/usr/lib/system/libsystem_network.dylib",
+    "/usr/lib/system/libsystem_networkextension.dylib",
+    "/usr/lib/system/libsystem_notify.dylib",
+    "/usr/lib/system/libsystem_sandbox.dylib",
+    "/usr/lib/system/libsystem_secinit.dylib",
+    "/usr/lib/system/libsystem_kernel.dylib",
+    "/usr/lib/system/libsystem_platform.dylib",
+    "/usr/lib/system/libsystem_pthread.dylib",
+    "/usr/lib/system/libsystem_symptoms.dylib",
+    "/usr/lib/system/libsystem_trace.dylib",
+    "/usr/lib/system/libunwind.dylib",
+    "/usr/lib/system/libxpc.dylib",
+    "/usr/lib/closure/libclosured.dylib",
+    "/usr/lib/libobjc.A.dylib",
+    "/usr/lib/libc++abi.dylib",
+    "/usr/lib/libDiagnosticMessagesClient.dylib",
+    "/usr/lib/libicucore.A.dylib",
+    "/usr/lib/libz.1.dylib",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+    "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+    "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO",
+    "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSyncLegacy.framework/Versions/A/ColorSyncLegacy",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/LangAnalysis.framework/Versions/A/LangAnalysis",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis",
+    "/System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight",
+    "/System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate",
+    "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+    "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+    "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+    "/System/Library/Frameworks/CoreDisplay.framework/Versions/A/CoreDisplay",
+    "/System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface",
+    "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+    "/System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport",
+    "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+    "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+    "/usr/lib/libbsm.0.dylib",
+    "/usr/lib/libauto.dylib",
+    "/System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration",
+    "/usr/lib/libarchive.2.dylib",
+    "/usr/lib/libxml2.2.dylib",
+    "/usr/lib/liblangid.dylib",
+    "/usr/lib/libCRFSuite.dylib",
+    "/usr/lib/libenergytrace.dylib",
+    "/usr/lib/system/libkxld.dylib",
+    "/usr/lib/libOpenScriptingUtil.dylib",
+    "/usr/lib/libcoretls.dylib",
+    "/usr/lib/libcoretls_cfhelpers.dylib",
+    "/usr/lib/libpam.2.dylib",
+    "/usr/lib/libsqlite3.dylib",
+    "/usr/lib/libxar.1.dylib",
+    "/usr/lib/libbz2.1.0.dylib",
+    "/usr/lib/liblzma.5.dylib",
+    "/usr/lib/libnetwork.dylib",
+    "/usr/lib/libapple_nghttp2.dylib",
+    "/usr/lib/libpcap.A.dylib",
+    "/usr/lib/libboringssl.dylib",
+    "/usr/lib/libusrtcp.dylib",
+    "/usr/lib/libapple_crypto.dylib",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/FSEvents",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices",
+    "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SharedFileList.framework/Versions/A/SharedFileList",
+    "/System/Library/Frameworks/NetFS.framework/Versions/A/NetFS",
+    "/System/Library/PrivateFrameworks/NetAuth.framework/Versions/A/NetAuth",
+    "/System/Library/PrivateFrameworks/login.framework/Versions/A/Frameworks/loginsupport.framework/Versions/A/loginsupport",
+    "/System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC",
+    "/usr/lib/libmecabra.dylib",
+    "/System/Library/PrivateFrameworks/LinguisticData.framework/Versions/A/LinguisticData",
+    "/usr/lib/libmarisa.dylib",
+    "/System/Library/PrivateFrameworks/Lexicon.framework/Versions/A/Lexicon",
+    "/usr/lib/libChineseTokenizer.dylib",
+    "/usr/lib/libcmph.dylib",
+    "/usr/lib/libiconv.2.dylib",
+    "/System/Library/PrivateFrameworks/LanguageModeling.framework/Versions/A/LanguageModeling",
+    "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+    "/System/Library/PrivateFrameworks/CoreEmoji.framework/Versions/A/CoreEmoji",
+    "/usr/lib/libcompression.dylib",
+    "/System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory",
+    "/System/Library/PrivateFrameworks/APFS.framework/Versions/A/APFS",
+    "/usr/lib/libutil.dylib",
+    "/System/Library/Frameworks/ServiceManagement.framework/Versions/A/ServiceManagement",
+    "/System/Library/PrivateFrameworks/BackgroundTaskManagement.framework/Versions/A/BackgroundTaskManagement",
+    "/usr/lib/libxslt.1.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBNNS.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libQuadrature.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLinearAlgebra.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparse.dylib",
+    "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparseBLAS.dylib",
+    "/System/Library/PrivateFrameworks/GPUWrangler.framework/Versions/A/GPUWrangler",
+    "/System/Library/PrivateFrameworks/IOAccelerator.framework/Versions/A/IOAccelerator",
+    "/System/Library/PrivateFrameworks/IOPresentment.framework/Versions/A/IOPresentment",
+    "/System/Library/PrivateFrameworks/DSExternalDisplay.framework/Versions/A/DSExternalDisplay",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreFSCache.dylib",
+    "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+    "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL",
+    "/System/Library/PrivateFrameworks/GraphVisualizer.framework/Versions/A/GraphVisualizer",
+    "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders",
+    "/usr/lib/libFosl_dynamic.dylib",
+    "/System/Library/PrivateFrameworks/FaceCore.framework/Versions/A/FaceCore",
+    "/System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontParser.dylib",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib",
+    "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib",
+    "/System/Library/PrivateFrameworks/AppleJPEG.framework/Versions/A/AppleJPEG",
+    "/System/Library/Frameworks/MetalPerformanceShaders.framework/Frameworks/MPSCore.framework/Versions/A/MPSCore",
+    "/System/Library/Frameworks/MetalPerformanceShaders.framework/Frameworks/MPSImage.framework/Versions/A/MPSImage",
+    "/System/Library/Frameworks/MetalPerformanceShaders.framework/Frameworks/MPSNeuralNetwork.framework/Versions/A/MPSNeuralNetwork",
+    "/System/Library/Frameworks/MetalPerformanceShaders.framework/Frameworks/MPSMatrix.framework/Versions/A/MPSMatrix",
+    "/System/Library/PrivateFrameworks/MetalTools.framework/Versions/A/MetalTools",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib",
+    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib",
+    "/usr/lib/libcups.2.dylib",
+    "/System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos",
+    "/System/Library/Frameworks/GSS.framework/Versions/A/GSS",
+    "/usr/lib/libresolv.9.dylib",
+    "/System/Library/PrivateFrameworks/Heimdal.framework/Versions/A/Heimdal",
+    "/usr/lib/libheimdal-asn1.dylib",
+    "/System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory",
+    "/System/Library/PrivateFrameworks/CommonAuth.framework/Versions/A/CommonAuth",
+    "/System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation",
+    "/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio",
+    "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox",
+    "/System/Library/PrivateFrameworks/AppleSauce.framework/Versions/A/AppleSauce"
+  ]
+}

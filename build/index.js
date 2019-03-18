@@ -1,34 +1,11 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ReactML = require('./components/reactml/ReactML');
-
-var _ReactMLHoc = require('./components/reactml/ReactMLHoc');
-
-var _ReactMLHoc2 = _interopRequireDefault(_ReactMLHoc);
-
-var _ArrayMapper = require('./components/reactml/ArrayMapper');
-
-var _ArrayMapper2 = _interopRequireDefault(_ArrayMapper);
-
-var _reactml = require('./modules/reactml');
-
-var _reactml2 = _interopRequireDefault(_reactml);
-
-var _util = require('./modules/reactml/util');
-
-var _materialUiTagFactory = require('./components/reactml/materialUiTagFactory');
-
-var _materialUiTagFactory2 = _interopRequireDefault(_materialUiTagFactory);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = {
-  ReactML: _ReactML.ReactML, ReactMLHoc: _ReactMLHoc2.default, ReactMLArrayMapper: _ArrayMapper2.default,
-  reducer: _reactml2.default,
-  materialUiTagFactory: _materialUiTagFactory2.default,
-  reactmlFieldChangeHandler: _util.reactmlFieldChangeHandler, fromYaml: _util.fromYaml, toYaml: _util.toYaml, dispatchFieldUpdate: _util.dispatchFieldUpdate
-};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const webpack_1 = require("./webpack");
+exports.loader = webpack_1.default;
+const rtmlVocab_1 = require("./rtmlVocab");
+exports.newVocab = rtmlVocab_1.newVocab;
+const render_1 = require("./render");
+exports.Rtml = render_1.Rtml;
+const codegen_1 = require("./codegen");
+exports.codegenSpec = codegen_1.codegenSpec;
+//# sourceMappingURL=index.js.map

@@ -1,0 +1,8 @@
+MyTitle = div -> "$p:text";
+title1 = MyTitle(text="special title");
+
+footer = div -> span -> copyright;
+body = div -> "Body here";
+copyright = "Copyright (c) 2019, Example.com!";
+page = header, body, footer;
+
