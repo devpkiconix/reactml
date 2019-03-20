@@ -1,7 +1,7 @@
 // tslint:disable:variable-name
 // tslint:disable:no-any
 
-const { parseF } = require('../parserV5');
+const { parseF, RtmlExpr } = require('../parserV5');
 
 describe("rtml parse ", () => {
     it("basic parsing test", (done) => {
@@ -15,9 +15,9 @@ footer = copyright;
 if2 = div -> If(cond="$p:user.loggedIn" component="UserProfile" user="$p:user" else_="NotLoggedIn");
 //comment
 //comment line 2
-page2 = (header, //comment
-    body, // comment
-    footer // comment
+page2 = (header,
+    body,
+    footer
     ); //comment
 body2 = (div -> //comment
      span(color="red") -> "body here");
@@ -55,30 +55,27 @@ page3 = header, body, footer;
                 done();
             });
     });
-    // it("grouping", () => {
-    //     const myParser = RtmlParser(0);
-    //     myParser._node.tryParse(`div`);
-    //     myParser._node.tryParse(`div,span`);
-    //     myParser._arrowSepNodes.tryParse(`div->span`);
-    //     myParser._node.tryParse(`div(width=200)`);
-    //     myParser._commaSepNodes.tryParse(`div(width=200), span(color="red"), p, a, graph(type="bar")`);
-    //     myParser._arrowSepNodes.tryParse(`div(width=200) -> span(color="red") -> p -> a -> graph(type="bar")`);
-    //     myParser._arrowSepNodes.tryParse(`div(width=200) -> span(color="red") -> p -> a -> graph(type="bar")`);
-    //     myParser._groupedCommaSepNodes.tryParse(`(div(width=200), span(color="red"), graph(type="line"))`);
-    //     myParser._groupedArrowSepNodes.tryParse(`(div(width=200) -> span(color="red") -> "hello world")`);
+    it("precedence", () => {
 
-    //     myParser._maybeArrowSepNodes.tryParse(`div(width=30) -> "hello world"`);
-    //     myParser._maybeArrowSepNodes.tryParse(`(div(width=30) -> "hello world")`);
+        const parsed = RtmlExpr.tryParse(`div -> "hello world", separator -> hr, br, div -> p -> a`);
+        expect(parsed[0].tag).toBe("div");
+        expect(parsed[0].children.length).toBe(1);
+        expect(parsed[1].tag).toBe("separator");
+        expect(parsed[1].children.length).toBe(1);
+        expect(parsed[1].children[0].tag).toBe("hr");
+        expect(parsed[1].children[0].children.length).toBe(0);
 
-    //     myParser._node.tryParse(`div`);
-    //     myParser._node2.tryParse(`div -> div(width=200) -> span(color="red") -> "hello world"`);
-    //     myParser._node2.tryParse(`(div -> div(width=200) -> span(color="red") -> "hello world")`);
-    //     myParser._node2.tryParse(`(div -> div(width=200) -> span(color="red") -> "hello world")`);
+        expect(parsed[2].tag).toBe("br");
+        expect(parsed[2].children.length).toBe(0);
 
-    //     myParser._node.tryParse(`div(width=200)`);
-    //     myParser._node.tryParse(`"hello world"`);
+        expect(parsed[3].tag).toBe("div");
+        expect(parsed[3].children.length).toBe(1);
+        expect(parsed[3].children[0].tag).toBe("p");
+        expect(parsed[3].children[0].children.length).toBe(1);
+        expect(parsed[3].children[0].children[0].tag).toBe("a");
+        expect(parsed[3].children[0].children[0].children.length).toBe(0);
 
-    // });
+    });
     it("hierarchy with liberal whitespace", (done) => {
         const spec = `
 page = A(prop1=1 prop2="string" prop3=true prop4={ "some": "object"})

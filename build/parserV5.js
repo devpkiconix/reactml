@@ -210,6 +210,8 @@ const evaluate = (input) => {
     // console.log("{" + calcval + "}");
     return calcval;
 };
+// a -> b, c = a->(b, c)
+// a->b,c,d = a->(b,(c,d))
 // Takes a parser for all the operators at this precedence level, and a parser
 // that parsers everything at the next precedence level, and returns a parser
 // that parses as many binary operations as possible, associating them to the
@@ -218,6 +220,8 @@ function BINARY_RIGHT(operatorsParser, nextParser) {
     const parser = P.lazy(() => nextParser.chain(next => P.seq(operatorsParser.skip(comment), P.of(next).skip(comment), parser.skip(comment)).or(P.of(next))));
     return parser.map(evaluate);
 }
+// a -> b, c = (a->b), c
+// a->b,c,d = ((a-b),c),d
 // Takes a parser for all the operators at this precedence level, and a parser
 // that parsers everything at the next precedence level, and returns a parser
 // that parses as many binary operations as possible, associating them to the
@@ -261,8 +265,8 @@ const table = [
     { type: BINARY_RIGHT, ops: operators({ Exponentiate: "^" }) },
     { type: BINARY_LEFT, ops: operators({ Multiply: "*", Divide: "/" }) },
     { type: BINARY_LEFT, ops: operators({ Add: "+", Subtract: "-" }) },
-    { type: BINARY_LEFT, ops: operators({ Fold: "," }) },
     { type: BINARY_RIGHT, ops: operators({ Compose: "->" }) },
+    { type: BINARY_RIGHT, ops: operators({ Fold: "," }) },
 ];
 // Start off with Num as the base parser for numbers and thread that through the
 // entire table of operator parsers.
@@ -279,6 +283,7 @@ const tableParser = table.reduce((acc, level) => level.type(level.ops, acc), Bas
 // keep it in a table instead of nesting it all manually.
 // This is our version of a math expression.
 const RtmlExpr = tableParser.trim(_);
+exports.RtmlExpr = RtmlExpr;
 const RtmlEquation = P.seq(ident.skip(whitespace).skip(equal), RtmlExpr).skip(whitespace).skip(semicolon).skip(comment)
     .map(([name, expr]) => ({ [name]: expr }));
 const RtmlSpec = comment.then(RtmlEquation.skip(whitespace)).many().skip(P.eof)

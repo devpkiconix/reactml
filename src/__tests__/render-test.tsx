@@ -12,7 +12,7 @@ describe("rtml render ", () => {
         const spec = `
 simple = div ->"this is content";
 comp1 = div(color="$g:style.color") -> span -> "$g:a";
-comp2 = div(color="$g:style.color") -> span -> "a";
+comp2 = div(color=$g:style.color) -> span -> "a";
 `;
         parseF(spec)
             .fork(done, (ast: any) => {
@@ -27,7 +27,7 @@ comp2 = div(color="$g:style.color") -> span -> "a";
                 ast2Vocab(ast, vocab);
                 const render = (name: string) => renderToString(reactRenderer(vocab)(state)(name));
 
-                expect(render("simple")).toBe(`<div>this is content</div>`);
+                // expect(render("simple")).toBe(`<div>this is content</div>`);
                 expect(render("comp2")).toBe(`<div color="red"><span>a</span></div>`);
                 expect(render("comp1")).toBe(`<div color="red"><span>a</span></div>`);
 
